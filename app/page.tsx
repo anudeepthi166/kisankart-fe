@@ -23,13 +23,7 @@ export default function Welcome() {
       setUser(userFromStorage);
       router.replace('/home');
     }
-  
-    // Always set loading false after small timeout
-    const timeout = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);  // 0.5s artificial delay to show loader properly
-  
-    return () => clearTimeout(timeout);
+    setIsLoading(false);
   }, []);
 
   if(isLoading){
@@ -39,6 +33,7 @@ export default function Welcome() {
    
   return (
    <>
+    {!isLoading && <> 
       <div className="flex w-full">
       <div className="w-[60%]">
         <img src="KisanKart.png" className="h-screen w-full object-cover" />
@@ -62,6 +57,7 @@ export default function Welcome() {
       </div>
       </div>
       <ToastContainer/>
+    </>}
    </>
     
 

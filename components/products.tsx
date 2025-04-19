@@ -7,15 +7,23 @@ import { Button } from "./ui/button";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 
 export default function Products({products}: productPropsType){
-    const API_URL = process.env.NEXT_PUBLIC_API_URL
     const router = useRouter()
+    const API_URL = process.env.NEXT_PUBLIC_API_URL
+    const [user, setUser] = useState<null|string>(null)
+
+    useEffect(()=>{
+      const localUser = localStorage.getItem('kisanKart_userId')
+      setUser(localUser);
+    },[])
+    
     const addToCart = async(product: any)=>{
         try{
-          const res = await axios.post(`${API_URL}/cart/add`,{
-            'userId':12,
+          const res = await axios.post(`${API_URL}/cart`,{
+            'userId':user,
             'productId': product.id,
             'quantity': 1 
           },{
@@ -42,7 +50,6 @@ export default function Products({products}: productPropsType){
                     key={product.id} 
                     className="flex flex-col cursor-pointer shadow-md hover:shadow-xl transition-transform duration-300 transform hover:scale-110"
                     onClick={() => {
-                        console.log('clicked', product.id)
                         router.push(`/product/${product.id}`)}}
                 >
                     <img 
@@ -64,6 +71,7 @@ export default function Products({products}: productPropsType){
                     <Button 
                         className="flex-1 bg-green-600 text-white hover:bg-green-700 -mt-15"
                         onClick={(e) => {
+                          e.stopPropagation()
                         addToCart(product);
                         }}
                     >

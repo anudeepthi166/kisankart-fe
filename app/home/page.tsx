@@ -54,8 +54,8 @@ export default function HomePage() {
   
   const addToCart = async(product: any)=>{
     try{
-      const res = await axios.post(`${API_URL}/cart/add`,{
-        'userId':12,
+      const res = await axios.post(`${API_URL}/cart`,{
+        'userId':user,
         'productId': product.id,
         'quantity': 1 
       },{
@@ -114,27 +114,27 @@ export default function HomePage() {
         <div className="flex w-full gap-6">
               <ImageCard
                 images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
-                heading= "Heading realted to images"
-                paragraph="some dummy text"
-                link={'http'}
+                heading= "Pesticides"
+                paragraph="Protect your crops from harmful pests and diseases"
+                link={'pesticides'}
               />
               <ImageCard
                 images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
-                heading= "Heading realted to images"
-                paragraph="some dummy text"
-                link={'http'}
+                heading= "Isecticides"
+                paragraph="Control and eliminate harmful insects that damage your crops"
+                link={'insecticides'}
               />
               <ImageCard
                 images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
-                heading= "Heading realted to images"
-                paragraph="some dummy text"
-                link={'http'}
+                heading= "Fertilizers"
+                paragraph="Enrich the soil with essential nutrients  and improve your crop yields"
+                link={'fertilizers'}
               />
               <ImageCard
                 images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
-                heading= "Heading realted to images"
-                paragraph="some dummy text"
-                link={'http'}
+                heading= "Farm tools"
+                paragraph="Make farming more efficient and productive"
+                link={'farmTools'}
               />
 
         </div>

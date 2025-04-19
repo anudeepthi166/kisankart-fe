@@ -52,7 +52,7 @@ export default function AddProduct (){
           formData.append('image', values.image);
         }
         try{
-            const res = await axios.post(`${API_URL}/product/add`,formData,{
+            const res = await axios.post(`${API_URL}/product`,formData,{
                 headers:{
                     'Accept':'application/json'
                 }

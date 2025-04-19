@@ -51,20 +51,20 @@ export default function Header() {
           </button>
           <button
               className="text-green-700 p-2 hover:cursor-pointer transition hover:border hover:border-green-700"
-              onClick={()=> router.push(`/cart/${12}`)}
+              onClick={()=> router.push(`/cart/${user}`)}
             >
               Cart
           </button>
           <button
               className="text-green-700 p-2 hover:cursor-pointer transition hover:border hover:border-green-700"
-              onClick={()=> router.push(`/cart/${12}`)}
+              onClick={()=> router.push(`/cart/${user}`)}
             >
               Orders
           </button>
           
           <CircleUser className="w-6 h-6 text-green-800 my-2" onClick={() => setOpen(!open)}/>
           {open && (
-            <div className="absolute right-5 top-11 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10 rounded-tr-none">
+            <div className="absolute right-9 top-16 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10 rounded-tr-none">
               <button
                 onClick={handleLogout}
                 className=" flex gap-3 block w-full text-left px-4 py-2 text-sm text-green-800 hover:cursor-pointer hover:bg-gray-100  rounded-md rounded-tr-none"

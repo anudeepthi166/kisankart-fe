@@ -67,8 +67,8 @@ export default function ProductDetailPage() {
   
   const addToCart = async(product: any)=>{
     try{
-      const res = await axios.post(`${API_URL}/cart/add`,{
-        'userId':12,
+      const res = await axios.post(`${API_URL}/cart`,{
+        'userId':user,
         'productId': product.id,
         'quantity': 1 
       },{
