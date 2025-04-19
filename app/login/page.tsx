@@ -41,8 +41,8 @@ export default function Login() {
                 values
             })
             if(res.status === 200){
-                localStorage.setItem("user", JSON.stringify(res.data.user));
                 toast.success("Successfully logged in")
+                localStorage.setItem('kisanKart_userId', res.data.user.id)
                 router.push('/home')
             }
             else{

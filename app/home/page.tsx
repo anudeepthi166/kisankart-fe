@@ -8,53 +8,22 @@ import Autoplay from "embla-carousel-autoplay"
 import Header from "../header/page"
 import Link from "next/link"
 import axios from "axios"
-
-const dummyProducts = [
-  {
-    id: 1,
-    name: "Organic Pesticide",
-    image: "/KisanKart.png",
-    price: 299,
-    offerPrice: 199,
-  },
-  {
-    id: 2,
-    name: "Insect Killer",
-    image: "/KisanKart.png",
-    price: 399,
-    offerPrice: 249,
-  },
-  {
-    id: 3,
-    name: "Growth Booster",
-    image: "/KisanKart.png",
-    price: 199,
-    offerPrice: 149,
-  },
-  {
-    id: 4,
-    name: "Soil Enhancer",
-    image: "/KisanKart.png",
-    price: 499,
-    offerPrice: 349,
-  },
-]
+import Loading from "@/components/loading"
+import { useRouter } from "next/navigation"
+import { toast } from "react-toastify"
+import ImageCard from "@/components/imageCard"
+import Products from "@/components/products"
 
 export default function HomePage() {
-  type Product = {
-    id: number;
-    name: string;
-    image: string;
-    price: number;
-    offerPrice: number;
-  };
+  const router = useRouter()
   const API_URL = process.env.NEXT_PUBLIC_API_URL
   const autoplay = useRef(Autoplay({ delay: 3000 }))
-  const [products, setProducts] = useState<any[]>([])
 
-  useEffect(()=>{
-    getAllProducts()
-  },[])
+  const [products, setProducts] = useState<any[]>([])
+  const [user, setUser] = useState<null|string>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  
   const getAllProducts = async() =>{
     try{
       const res = await axios.get(`${API_URL}/product`)
@@ -67,7 +36,22 @@ export default function HomePage() {
       console.log("Error while getting products", err)
     }
   }
-
+  
+  useEffect(() => {
+    const userFromStorage = localStorage.getItem('kisanKart_userId')
+    if (userFromStorage) {
+      setUser(userFromStorage)
+      setIsLoading(false)
+      getAllProducts()
+    } else {
+      router.push('/')
+    }
+  }, [router])
+  
+  if (isLoading) {
+    return <Loading />
+  }
+  
   const addToCart = async(product: any)=>{
     try{
       const res = await axios.post(`${API_URL}/cart/add`,{
@@ -80,28 +64,44 @@ export default function HomePage() {
         }
       })
       console.log('Added to cart:',res)
+      if(res.status===200){
+        toast.success("Product added to cart")
+      }
+      else{
+        toast.warn("Something went wrong")
+      }
     }
-
     catch(err:any){
       console.log("Error while adding to cart-->", err)
+      if(err.message){
+        toast.error(err.message)
+      }
     }
   }
 
   return (
-    <div>
+    <div className="p-5 bg-gradient-to-b from-green-100 via-gray-200 to-gray-100 min-h-screen">
       <Header />
-      <div className="p-6 bg-gradient-to-b from-green-100 via-gray-200 to-gray-100 min-h-screen">
+      <div >
         {/* Carousel Section */}
-        <div className="flex justify-center mb-10">
-          <Carousel opts={{ loop: true }} plugins={[autoplay.current]} className="relative w-full rounded-xl shadow-xl overflow-hidden max-w-5xl">
+        <div className="flex justify-center mb-5 mt-5">
+          <Carousel opts={{ loop: true }} plugins={[autoplay.current]} className="relative w-full rounded-xl overflow-hidden">
             <CarouselContent>
               {[1, 2, 3].map((i) => (
-                <CarouselItem key={i} className="flex justify-center items-center">
-                  <img
-                    src="/KisanKart.png"
-                    alt={`Slide ${i}`}
-                    className="w-full h-[300px] object-cover rounded-xl"
-                  />
+                <CarouselItem key={i} className="flex w-full items-center justify-center">
+                   <div className="flex items-center justify-center text-green-800 p-4">
+                    <div className="text-center">
+                      <h2 className="text-2xl font-semibold mb-2">Product {i}</h2>
+                      <p className="text-sm">Discover our amazing product range. Get started with KisanKart today!</p>
+                    </div>
+                  </div>
+                  <div className="">
+                    <img
+                      src="/KisanKart.png"
+                      alt={`Slide ${i}`}
+                      className="w-full h-[230px] object-contain rounded-l-xl"
+                    />
+                  </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -111,29 +111,35 @@ export default function HomePage() {
         </div>
 
         {/* Product Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {products && products.length !==0 && products.map((product) => (
-           <Link href={`/product/${product.id}`} key={product.id}>
-           <Card className="cursor-pointer shadow-md hover:shadow-xl transition-shadow duration-300">
-             <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-contain rounded-t-md" />
-             <CardHeader className="pt-4 pb-0">
-               <CardTitle className="text-lg text-green-800">{product.name}</CardTitle>
-             </CardHeader>
-             <CardContent className="pt-2">
-               <div className="flex items-center gap-2">
-                 <span className="text-xl font-semibold text-red-600">₹{100}</span>
-                 <span className="text-gray-500 line-through">₹{product.price}</span>
-                 <span className="ml-auto text-sm text-white bg-red-500 px-2 py-1 rounded">Save ₹{product.price - 100}</span>
-               </div>
-             </CardContent>
-             <CardFooter className="flex justify-between">
-               <Button className="bg-green-600 text-white hover:bg-green-700 hover:cursor-pointer" onClick={()=> addToCart(product)}>Add to Cart</Button>
-               <Button variant="outline" className="border-green-700 text-green-700 hover:bg-green-100">Buy Now</Button>
-             </CardFooter>
-           </Card>
-         </Link>
-          ))}
+        <div className="flex w-full gap-6">
+              <ImageCard
+                images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
+                heading= "Heading realted to images"
+                paragraph="some dummy text"
+                link={'http'}
+              />
+              <ImageCard
+                images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
+                heading= "Heading realted to images"
+                paragraph="some dummy text"
+                link={'http'}
+              />
+              <ImageCard
+                images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
+                heading= "Heading realted to images"
+                paragraph="some dummy text"
+                link={'http'}
+              />
+              <ImageCard
+                images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
+                heading= "Heading realted to images"
+                paragraph="some dummy text"
+                link={'http'}
+              />
+
         </div>
+
+        <Products products={products}/>
       </div>
     </div>
   )

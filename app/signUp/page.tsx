@@ -38,6 +38,7 @@ export default function SignUp() {
             })
             if(res.status === 200){
                 toast.success("User account created ")
+                localStorage.setItem('kisanKart_userId', res.data.user.id)
                 router.push('/home')
             }
             else{

@@ -3,14 +3,40 @@
 import { useRouter } from "next/navigation";
 import Login from "./login/page";
 import SignUp from "./signUp/page";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Home from "./home/page";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Loading from "@/components/loading";
 
 export default function Welcome() {
   const router = useRouter()
   const [signUpOpen, setSignUpOpen] = useState(false)
+  const [products, setProducts] = useState<any[]>([])
+  const [user, setUser] = useState<null|string>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const userFromStorage = localStorage.getItem('kisanKart_userId');
+    
+    if (userFromStorage) {
+      setUser(userFromStorage);
+      router.replace('/home');
+    }
+  
+    // Always set loading false after small timeout
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);  // 0.5s artificial delay to show loader properly
+  
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if(isLoading){
+    return <Loading/>
+  }
+  
+   
   return (
    <>
       <div className="flex w-full">
@@ -34,7 +60,7 @@ export default function Welcome() {
         </div>
 
       </div>
-    </div>
+      </div>
       <ToastContainer/>
    </>
     
