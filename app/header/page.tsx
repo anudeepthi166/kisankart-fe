@@ -43,6 +43,12 @@ export default function Header() {
 
         {/* Buttons */}
         <div className="flex gap-4">
+        <button
+              onClick={() => {router.push('/home')}}
+              className="text-green-700 p-2 hover:cursor-pointer transition hover:border hover:border-green-700"
+            >
+              Home
+          </button>
           <button
               onClick={() => {setShowModal(true)}}
               className="text-green-700 p-2 hover:cursor-pointer transition hover:border hover:border-green-700"
