@@ -23,10 +23,28 @@ export default function HomePage() {
   const [user, setUser] = useState<null|string>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  const carouselItems = [
+    {
+      image: "carousel_1.png",
+      heading: "Nourish Naturally",
+      description: "Boost your crops' health with our powerful organic fertilizers."
+    },
+    {
+      image: "carousel_2.png",
+      heading: "Nature's Protection",
+      description: "Defend your fields with eco-friendly solutions like seaweed and fish extracts."
+    },
+    {
+      image: "carousel_3.png",
+      heading: "Pure Growth, Pure Harvest",
+      description: "Grow safer, stronger crops with trusted organic insecticides."
+    }
+  ];
   
+
   const getAllProducts = async() =>{
     try{
-      const res = await axios.get(`${API_URL}/product`)
+      const res = await axios.get(`${API_URL}/product?categoryFlag=false`)
       console.log("all products-->",res)
       if(res.status === 200){
         setProducts(res.data.products.test)
@@ -87,18 +105,18 @@ export default function HomePage() {
         <div className="flex justify-center mb-5 mt-5">
           <Carousel opts={{ loop: true }} plugins={[autoplay.current]} className="relative w-full rounded-xl overflow-hidden">
             <CarouselContent>
-              {[1, 2, 3].map((i) => (
-                <CarouselItem key={i} className="flex w-full items-center justify-center">
+              {carouselItems.map((carouselItem) => (
+                <CarouselItem key={carouselItem.image} className="flex w-full items-center justify-center">
                    <div className="flex items-center justify-center text-green-800 p-4">
                     <div className="text-center">
-                      <h2 className="text-2xl font-semibold mb-2">Product {i}</h2>
-                      <p className="text-sm">Discover our amazing product range. Get started with KisanKart today!</p>
+                      <h2 className="text-2xl font-semibold mb-2">{carouselItem.heading}</h2>
+                      <p className="text-sm">{carouselItem.description}</p>
                     </div>
                   </div>
                   <div className="">
                     <img
-                      src="/KisanKart.png"
-                      alt={`Slide ${i}`}
+                      src={carouselItem.image}
+                      alt={`farming related image`}
                       className="w-full h-[230px] object-contain rounded-l-xl"
                     />
                   </div>
@@ -113,25 +131,25 @@ export default function HomePage() {
         {/* Product Cards */}
         <div className="flex w-full gap-6">
               <ImageCard
-                images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
+                images={["pest_1.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
                 heading= "Pesticides"
                 paragraph="Protect your crops from harmful pests and diseases"
                 link={'pesticides'}
               />
               <ImageCard
-                images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
+                images={["organi_insecticide.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
                 heading= "Isecticides"
                 paragraph="Control and eliminate harmful insects that damage your crops"
                 link={'insecticides'}
               />
               <ImageCard
-                images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
+                images={["fertilizer.png", "seeds.png", "soil_enhancer.png", "KisanKart.png" ]}
                 heading= "Fertilizers"
                 paragraph="Enrich the soil with essential nutrients  and improve your crop yields"
                 link={'fertilizers'}
               />
               <ImageCard
-                images={["KisanKart.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
+                images={["spray.png", "gloves.webp", "sticky.jpg", "tools.jpg" ]}
                 heading= "Farm tools"
                 paragraph="Make farming more efficient and productive"
                 link={'farmTools'}

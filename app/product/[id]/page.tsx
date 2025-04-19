@@ -35,7 +35,7 @@ export default function ProductDetailPage() {
 
   const getAllProducts = async () => {
     try {
-      const res = await axios.get(`${API_URL}/product`)
+      const res = await axios.get(`${API_URL}/product/?categoryFlag=true`)
       console.log("all products-->", res)
       if (res.status === 200) {
         setProducts(res.data.products.test) // Assuming "products" is the correct key in the response

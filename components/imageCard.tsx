@@ -14,14 +14,14 @@ export default function ImageCard({images, heading, paragraph, link}: ImageCardP
           <img 
             src={images[0]} 
             alt="some image"  
-            className="w-full h-full object-contain transition-transform duration-300 transform hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-300 transform hover:scale-110"
           />
         </div>  
         <div className="flex-1  overflow-hidden">
           <img 
             src={images[1]} 
             alt="some image"  
-            className="w-full h-full object-contain transition-transform duration-300 transform hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-300 transform hover:scale-110"
           />
         </div>
       </div>
@@ -31,14 +31,14 @@ export default function ImageCard({images, heading, paragraph, link}: ImageCardP
           <img 
             src={images[2]} 
             alt="some image"  
-            className="w-full h-full object-contain transition-transform duration-300 transform hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-300 transform hover:scale-110"
           />
         </div>
         <div className="flex-1 overflow-hidden">
           <img 
             src={images[3]} 
             alt="some image"  
-            className="w-full h-full object-contain transition-transform duration-300 transform hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-300 transform hover:scale-110"
           />
         </div>
       </div>
