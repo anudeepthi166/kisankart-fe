@@ -1,23 +1,26 @@
 "use client";
 
+import axios from "axios";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 export default function Login() {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL
     const router = useRouter();
     const [usePassword, setUsePasword] = useState(true);
 
     const initialValues = {
-        identifier: '',
+        contact: '',
         password: '',
         otp: '',
     };
 
     const validate = (values: typeof initialValues) => {
         const errors: { [key: string]: string } = {};
-        if (!values.identifier) {
-            errors.identifier = "Enter your phone number or email";
+        if (!values.contact) {
+            errors.contact = "Enter your phone number";
         }
         if (usePassword) {
             if (!values.password) {
@@ -31,8 +34,24 @@ export default function Login() {
         return errors;
     };
 
-    const handleSubmit = (values: typeof initialValues) => {
+    const handleSubmit = async(values: typeof initialValues) => {
         console.log("Login details", values);
+        try{
+            const res = await axios.post(`${API_URL}/auth/login`,{
+                values
+            })
+            if(res.status === 200){
+                localStorage.setItem("user", JSON.stringify(res.data.user));
+                toast.success("Successfully logged in")
+                router.push('/home')
+            }
+            else{
+                toast.warning("Something went wrong")
+            }
+        }catch(err: any){
+            console.log("error in login", err)
+            toast.error(err.response.data.message)
+        }
     };
 
     return (
@@ -40,10 +59,10 @@ export default function Login() {
             <div className="text-green-700 font-bold text-center text-2xl mb-5">Welcome back</div>
             <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
                 <Form>
-                    {/* Identifier field */}
+                    {/* contact field */}
                     <div className="mb-4">
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Email or phone</label>
-                        <Field name="identifier">
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Contact</label>
+                        <Field name="contact">
                             {({ field, meta }: any) => (
                                 <input
                                     {...field}
