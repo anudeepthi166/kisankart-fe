@@ -37,12 +37,14 @@ export default function Login() {
     const handleSubmit = async(values: typeof initialValues) => {
         console.log("Login details", values);
         try{
-            const res = await axios.post(`${API_URL}/auth/login`,{
+            const res = await axios.post(`${API_URL}/auth/login`,
                 values
-            })
+            )
             if(res.status === 200){
+                console.log(res)
                 toast.success("Successfully logged in")
                 localStorage.setItem('kisanKart_userId', res.data.user.id)
+                localStorage.setItem('kisanKart_userRole', res.data.user.Role.name)
                 router.push('/home')
             }
             else{
@@ -120,7 +122,7 @@ export default function Login() {
                     )}
 
                     {/* Toggle password/otp */}
-                    <div className="text-sm mt-4">
+                    {/* <div className="text-sm mt-4">
                         <button
                             type="button"
                             className="text-green-700 underline font-semibold cursor-pointer"
@@ -128,7 +130,7 @@ export default function Login() {
                         >
                             {usePassword ? 'Use OTP instead' : 'Use password instead'}
                         </button>
-                    </div>
+                    </div> */}
 
                     {/* Submit */}
                     <button

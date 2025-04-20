@@ -1,6 +1,7 @@
 "use client"
 
-import Header from "@/app/header/page"
+import Header from "@/app/header_test/page"
+import BuyNowButton from "@/components/buyButton"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import axios from "axios"
@@ -181,12 +182,8 @@ export default function Cart(){
       
                 {/* Action Buttons */}
                 <div className="flex flex-col md:flex-row gap-2 min-w-[150px]">
-                  <Button
-                    variant="outline"
-                    className="border-green-700 text-green-700 hover:bg-green-100 transition hover:cursor-pointer"
-                  >
-                    Buy Now
-                  </Button>
+                <BuyNowButton product={cartItem.product} user={user} />
+
                   <Button
                     variant="destructive"
                     className="hover:bg-red-500 transition hover:cursor-pointer"

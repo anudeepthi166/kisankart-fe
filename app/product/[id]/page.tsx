@@ -1,6 +1,6 @@
 "use client"
 
-import Header from "@/app/header/page"
+import Header from "@/app/header_test/page"
 import Loading from "@/components/loading"
 import Products from "@/components/products"
 import axios from "axios"

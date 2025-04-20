@@ -5,7 +5,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Autoplay from "embla-carousel-autoplay"
-import Header from "../header/page"
+import Header from "../header_test/page"
 import Link from "next/link"
 import axios from "axios"
 import Loading from "@/components/loading"
@@ -43,10 +43,10 @@ export default function HomePage() {
   
   const getAllProducts = async() =>{
     try{
-      const res = await axios.get(`${API_URL}/product?categoryFlag=false`)
+      const res = await axios.get(`${API_URL}/product`)
       console.log("all products-->",res)
       if(res.status === 200){
-        setProducts(res.data.products.test)
+        setProducts(res.data.products)
       }
     }
     catch(err:any){
@@ -152,7 +152,7 @@ export default function HomePage() {
                 images={["spray.png", "gloves.webp", "sticky.jpg", "tools.jpg" ]}
                 heading= "Farm tools"
                 paragraph="Make farming more efficient and productive"
-                link={'farmTools'}
+                link='farmTools'
               />
 
         </div>

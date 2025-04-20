@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 interface AddressFormValues {
@@ -14,9 +14,16 @@ interface AddressFormValues {
   country: string;
 }
 
-export const AddressForm = ({onSubmit,}: { onSubmit: (values: AddressFormValues) => void;}) => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL
-  const initialValues: AddressFormValues = {
+export const AddressForm = ({onSubmit, initialValues: propInitialValues, onClose}: { onSubmit: (values: AddressFormValues) => void;initialValues?:Partial<AddressFormValues>;onClose:()=>void}) => {
+  const [user, setUser] = useState<null|string>()
+
+  useEffect(()=>{
+    const localUser = localStorage.getItem('kisanKart_userId')
+    setUser(localUser)
+  },[])
+  console.log('user', user)
+  const API_URL = process.env.NEXT_PUBLIC_API_URL
+  const defaultInitialValues: AddressFormValues = {
     fullName: '',
     phoneNumber: '',
     addressLine1: '',
@@ -26,7 +33,7 @@ export const AddressForm = ({onSubmit,}: { onSubmit: (values: AddressFormValues)
     postalCode: '',
     country: 'India',
   };
-
+  const initialValues = { ...defaultInitialValues, ...propInitialValues };
   const validate = (values: AddressFormValues) => {
     const errors: Partial<AddressFormValues> = {};
 
@@ -53,19 +60,35 @@ export const AddressForm = ({onSubmit,}: { onSubmit: (values: AddressFormValues)
 
     return errors;
   };
+  const handleUpdateAddress = async(body: any)=>{
+    try{const res = await axios.put(`${API_URL}/user/address/${body.userId}`,body,
+      {headers:{
+        'Accept':'application/json'}
+      }
+      )
+      console.log('address update--->', res)
+      if(res.status === 200){
+        toast.success('Address updtaed')
+        onClose();
+      }
+    }catch(err:any){
+      console.log("ERROR-----------",err)
+    }
+  }
 
   const handleSubmit = async(values: typeof initialValues)=>{
-    const res = await axios.post(`${API_URL}/user/address`,{
-        "userId": 12,
-        "fullName": values.fullName,
-        "phoneNumber": values.phoneNumber,
-        "addressLine1": values.addressLine1,
-        "addressLine2": values.addressLine2,
-        "city": values.city,
-        "state": values.state,
-        "postalCode": values.postalCode,
-        "country": values.country
-      },
+    const body = {
+      "userId": user,
+      "fullName": values.fullName,
+      "phoneNumber": values.phoneNumber,
+      "addressLine1": values.addressLine1,
+      "addressLine2": values.addressLine2,
+      "city": values.city,
+      "state": values.state,
+      "postalCode": values.postalCode,
+      "country": values.country
+    }
+    try{const res = await axios.post(`${API_URL}/user/address`,body,
       {headers:{
         'Accept':'application/json'}
       }
@@ -73,7 +96,18 @@ export const AddressForm = ({onSubmit,}: { onSubmit: (values: AddressFormValues)
       console.log('address add--->', res)
       if(res.status === 201){
         toast.success('Address added')
+        onClose();
       }
+    }catch(err:any){
+      console.log("ERROR-----------",err)
+      if(err.status === 400 && err.response.data.message === "Address already exists for this user"){
+        handleUpdateAddress(body)
+      }
+      else{
+        toast.warning(err.message)
+      }
+    }
+
   }
 
   return (

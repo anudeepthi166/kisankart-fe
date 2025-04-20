@@ -43,7 +43,7 @@ export default function Products({products}: productPropsType){
       }
     
     return(
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
         
             {products && products.length !== 0 && products.map((product: any) => (
                 <Card 
@@ -77,13 +77,7 @@ export default function Products({products}: productPropsType){
                     >
                         Add to Cart
                     </Button>
-                    <Button 
-                        variant="outline" 
-                        className="flex-1 border-green-700 text-green-700 hover:bg-green-100  -mt-15"
-                       
-                    >
-                        Buy Now
-                    </Button>
+                   
                     </CardFooter>
                 </Card>
             ))}

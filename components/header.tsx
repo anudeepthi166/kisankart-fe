@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import AddProduct from '../add_product/page';
 import { toast, ToastContainer } from 'react-toastify';
 import { CircleUser, LogOut } from 'lucide-react';
 import Loading from '@/components/loading';
@@ -12,6 +11,7 @@ export default function Header() {
   const pathName = usePathname();
   const [showModal, setShowModal] = useState(false)
   const [user, setUser] = useState<null|string>(null)
+  const [userRole, setUserRole] = useState<null|string>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [open, setOpen] = useState(false);
 
@@ -20,12 +20,10 @@ export default function Header() {
   },[])
   const getUserFromLocalStorage = ()=>{
     const user = localStorage.getItem('kisanKart_userId')
+    const userRole = localStorage.getItem('kisanKart_userRole')
     setUser(user)
+    setUserRole(userRole)
     setIsLoading(false)
-  }
-
-  if(isLoading){
-    return <Loading/>
   }
 
   const handleLogout = ()=>{
@@ -44,7 +42,7 @@ export default function Header() {
     <div className="w-full shadow-md bg-white sticky top-0 z-50">
       <div className="flex justify-between items-center pr-6 py-1">
         {/* Logo */}
-          <img src="KisanKart.png" className="w-20 h-12 object-contain hover:cursor-pointer" alt="KisanKart"  onClick={()=>{router.push('/home')}}/>
+        <img src="/KisanKart.png" className="w-20 h-12 object-contain hover:cursor-pointer" alt="KisanKart" onClick={() => {router.push('/home')}} />
 
 
         {/* Buttons */}
@@ -55,13 +53,15 @@ export default function Header() {
           >
             Home
           </button>
-          <button
+          {userRole === 'Admin' &&
+            <button
             onClick={() => {
               router.push(`/add_product`)}}
             className={getButtonClass('/addProduct')}
           >
             Add Product
-          </button>
+            </button>
+          }
           <button
             onClick={() => {router.push(`/cart/${user}`)}}
             className={getButtonClass('/cart')}
