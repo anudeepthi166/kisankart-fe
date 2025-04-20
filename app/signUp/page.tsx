@@ -33,11 +33,13 @@ export default function SignUp() {
     const handleSubmit = async(values: typeof initialValues) => {
         console.log("signUp details", values);
         try{
-            const res = await axios.post(`${API_URL}/auth/signup`,{
-                values
-            })
+            const res = await axios.post(`${API_URL}/auth/signup`,
+                values)
             if(res.status === 200){
                 toast.success("User account created ")
+                localStorage.setItem('kisanKart_userId', res.data.user.id)
+                localStorage.setItem('kisanKart_userRole', res.data.user.Role.name)
+
                 router.push('/home')
             }
             else{
