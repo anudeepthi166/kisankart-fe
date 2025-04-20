@@ -27,21 +27,20 @@ export default function HomePage() {
     {
       image: "carousel_1.png",
       heading: "Nourish Naturally",
-      description: "Boost your crops' health with our powerful organic fertilizers."
+      description: "Enrich your crops with powerful organic fertilizers, unlocking vibrant growth and lasting soil health."
     },
     {
       image: "carousel_2.png",
       heading: "Nature's Protection",
-      description: "Defend your fields with eco-friendly solutions like seaweed and fish extracts."
+      description: "Shield your fields with eco-friendly solutions like seaweed and fish extracts, ensuring resilient and thriving harvests."
     },
     {
       image: "carousel_3.png",
       heading: "Pure Growth, Pure Harvest",
-      description: "Grow safer, stronger crops with trusted organic insecticides."
+      description: "Cultivate stronger, healthier crops with trusted organic insecticides — for a safer farm and a richer yield."
     }
   ];
   
-
   const getAllProducts = async() =>{
     try{
       const res = await axios.get(`${API_URL}/product?categoryFlag=false`)
@@ -98,8 +97,9 @@ export default function HomePage() {
   }
 
   return (
+    <>
+    <Header />
     <div className="p-5 bg-gradient-to-b from-green-100 via-gray-200 to-gray-100 min-h-screen">
-      <Header />
       <div >
         {/* Carousel Section */}
         <div className="flex justify-center mb-5 mt-5">
@@ -107,13 +107,13 @@ export default function HomePage() {
             <CarouselContent>
               {carouselItems.map((carouselItem) => (
                 <CarouselItem key={carouselItem.image} className="flex w-full items-center justify-center">
-                   <div className="flex items-center justify-center text-green-800 p-4">
+                   <div className="flex items-center justify-center text-green-800 p-4 w-1/2 -ml-20">
                     <div className="text-center">
                       <h2 className="text-2xl font-semibold mb-2">{carouselItem.heading}</h2>
-                      <p className="text-sm">{carouselItem.description}</p>
+                      <p className="text-sm break-words whitespace-pre-line w-1/2 mx-auto">{carouselItem.description}</p>
                     </div>
                   </div>
-                  <div className="">
+                  <div className="-ml-30">
                     <img
                       src={carouselItem.image}
                       alt={`farming related image`}
@@ -131,19 +131,19 @@ export default function HomePage() {
         {/* Product Cards */}
         <div className="flex w-full gap-6">
               <ImageCard
-                images={["pest_1.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
+                images={["pest_1.png", "pest_2.png", "organic_pests.png", "organic_1.png" ]}
                 heading= "Pesticides"
                 paragraph="Protect your crops from harmful pests and diseases"
                 link={'pesticides'}
               />
               <ImageCard
-                images={["organi_insecticide.png", "KisanKart.png", "KisanKart.png", "KisanKart.png" ]}
+                images={["organic_insecticide_1.png", "organic_insecticide.png", "organic_insecticide_2.png", "organic_insecticide_3.png" ]}
                 heading= "Isecticides"
                 paragraph="Control and eliminate harmful insects that damage your crops"
                 link={'insecticides'}
               />
               <ImageCard
-                images={["fertilizer.png", "seeds.png", "soil_enhancer.png", "KisanKart.png" ]}
+                images={["fertilizer.png", "seeds.png", "fertile_land.png", "fertilizers_1.png" ]}
                 heading= "Fertilizers"
                 paragraph="Enrich the soil with essential nutrients  and improve your crop yields"
                 link={'fertilizers'}
@@ -160,5 +160,8 @@ export default function HomePage() {
         <Products products={products}/>
       </div>
     </div>
+
+    </>
+    
   )
 }

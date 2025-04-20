@@ -1,14 +1,15 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import AddProduct from '../addProduct/page';
+import AddProduct from '../add_product/page';
 import { toast, ToastContainer } from 'react-toastify';
 import { CircleUser, LogOut } from 'lucide-react';
 import Loading from '@/components/loading';
 
 export default function Header() {
   const router = useRouter();
+  const pathName = usePathname();
   const [showModal, setShowModal] = useState(false)
   const [user, setUser] = useState<null|string>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -33,75 +34,83 @@ export default function Header() {
     router.push('/')
   }
 
+  const getButtonClass = (target: string) => (
+    pathName.startsWith(target)
+      ? 'text-white font-medium transition bg-green-700 p-2 rounded-md hover:cursor-pointer'
+      : 'text-green-700 font-medium hover:border-b-2 hover:border-green-700 transition hover:cursor-pointer'
+  );
+
   return (
-    <div>
-      <div className="flex justify-between items-center px-4 ">
+    <div className="w-full shadow-md bg-white sticky top-0 z-50">
+      <div className="flex justify-between items-center pr-6 py-1">
         {/* Logo */}
-        <div>
-          <img src="KisanKart.png" className="w-24 h-12 object-contain" alt="KisanKart" />
-        </div>
+          <img src="KisanKart.png" className="w-20 h-12 object-contain hover:cursor-pointer" alt="KisanKart"  onClick={()=>{router.push('/home')}}/>
+
 
         {/* Buttons */}
-        <div className="flex gap-4">
-        <button
-              onClick={() => {router.push('/home')}}
-              className="text-green-700 p-2 hover:cursor-pointer transition hover:border hover:border-green-700"
-            >
-              Home
+        <div className="flex items-center gap-6 ">
+          <button
+            onClick={() => router.push('/home')}
+            className={getButtonClass('/home')}
+          >
+            Home
           </button>
           <button
-              onClick={() => {setShowModal(true)}}
-              className="text-green-700 p-2 hover:cursor-pointer transition hover:border hover:border-green-700"
-            >
-              Add product
+            onClick={() => {
+              router.push(`/add_product`)}}
+            className={getButtonClass('/addProduct')}
+          >
+            Add Product
           </button>
           <button
-              className="text-green-700 p-2 hover:cursor-pointer transition hover:border hover:border-green-700"
-              onClick={()=> router.push(`/cart/${user}`)}
-            >
-              Cart
+            onClick={() => {router.push(`/cart/${user}`)}}
+            className={getButtonClass('/cart')}
+          >
+            Cart
           </button>
           <button
-              className="text-green-700 p-2 hover:cursor-pointer transition hover:border hover:border-green-700"
-              onClick={()=> router.push(`/cart/${user}`)}
-            >
-              Orders
+            onClick={() => router.push(`/order/${user}`)}
+            className={getButtonClass('/orders')}
+          >
+            Orders
           </button>
-          
-          <CircleUser className="w-6 h-6 text-green-800 my-2" onClick={() => setOpen(!open)}/>
-          {open && (
-            <div className="absolute right-9 top-16 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10 rounded-tr-none">
-              <button
-                onClick={handleLogout}
-                className=" flex gap-3 block w-full text-left px-4 py-2 text-sm text-green-800 hover:cursor-pointer hover:bg-gray-100  rounded-md rounded-tr-none"
-              >
-                <LogOut/>Logout
-              </button>
-            </div>
-          )}
-        </div>
-        
-      </div>
-      <div>
-        {showModal && (
-          <div className="fixed inset-0 bg-gray-300 bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-md w-[600px] max-h-[90vh] overflow-y-auto relative">
-              {/* Close button */}
-              <button
-                onClick={() => setShowModal(false)}
-                className="absolute top-2 right-2 text-green-600 hover:text-gray-900 text-2xl transition duration-200 hover:cursor-pointer"
-              >
-                ✖
-              </button>
 
-
-              {/* Render the AddProduct page here */}
-              <AddProduct />
-            </div>
+          <div className="relative">
+            <CircleUser
+              className="w-7 h-7 text-green-800 cursor-pointer hover:scale-105 transition"
+              onClick={() => setOpen(!open)}
+            />
+            {open && (
+              <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-300 rounded-md shadow-md rounded-tr-none">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-green-800 hover:bg-gray-100 rounded-md "
+                >
+                  <LogOut /> Logout
+                </button>
+              </div>
+            )}
           </div>
-        )}
-        <ToastContainer />
+        </div>
       </div>
+
+      {/* Modal
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-md p-8 w-[600px] max-h-[90vh] overflow-y-auto relative">
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-2 right-2 text-green-600 text-2xl hover:text-gray-900 transition"
+            >
+              ✖
+            </button>
+            <AddProduct />
+          </div>
+        </div>
+      )} */}
+
+      <ToastContainer />
     </div>
+
   );
 }
