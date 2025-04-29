@@ -2,14 +2,12 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import AddProduct from '../app/add_product/page';
+import AddProduct from '../add_product/page';
 import { toast, ToastContainer } from 'react-toastify';
 import { CircleUser, MapPin, LogOut, Search, ShoppingCart, Package, Heart, Plus, UserRoundPen, ChevronDown } from 'lucide-react';
 import Loading from '@/components/loading';
 import axios from 'axios';
-import Cart from '../app/cart/[userId]/page';
-import KisanKartLogo from '../public/KisanKart.png'
-import Image from 'next/image';
+import Cart from '../cart/[userId]/page';
 
 export default function Header() {
   const router = useRouter();
@@ -72,7 +70,7 @@ export default function Header() {
     <div className="w-full shadow-md bg-white sticky top-0 z-50">
       <div className="flex justify-between items-center pr-6 py-1">
         {/* Logo */}
-        <Image src={KisanKartLogo} className="ml-3 w-20 h-12 object-cover hover:cursor-pointer" alt="KisanKart"  onClick={()=>{router.push('/home')}}/>
+        <img src="KisanKart.png" className="ml-3 w-20 h-12 object-cover hover:cursor-pointer" alt="KisanKart"  onClick={()=>{router.push('/home')}}/>
         <div className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer">
           <div className="text-green-600">
             <MapPin className="w-6 h-6" />

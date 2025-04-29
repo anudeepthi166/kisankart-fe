@@ -8,6 +8,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Heart } from "lucide-react";
 
 
 export default function Products({products}: productPropsType){
@@ -43,12 +44,12 @@ export default function Products({products}: productPropsType){
       }
     
     return(
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
         
             {products && products.length !== 0 && products.map((product: any) => (
                 <Card 
                     key={product.id} 
-                    className="flex flex-col cursor-pointer shadow-md hover:shadow-xl transition-transform duration-300 transform hover:scale-110"
+                    className="flex flex-col cursor-pointer shadow-md hover:shadow-xl transition-transform duration-300 transform hover:scale-102"
                     onClick={() => {
                         router.push(`/product/${product.id}`)}}
                 >
@@ -57,6 +58,15 @@ export default function Products({products}: productPropsType){
                     alt={product.name} 
                     className="w-full h-38 object-contain rounded-t-md" 
                     />
+                     <button className="absolute top-2 right-2 p-2 bg-white rounded-full shadow cursor-pointer group"
+                     onClick={(e:any)=>{e.stopPropagation()}}
+                     >
+                      <Heart className={`w-5 h-5 transition-colors duration-300 ${ 
+                        product.isWishListed 
+                        ?'fill-red-500 text-red-500'
+                        :'text-gray-400 group-hover:fill-red-500 group-hover:text-red-500'
+                      }` }/>
+                    </button>
                     
                     <CardHeader >
                     <CardTitle className="text-xl text-green-800 font-bold">{product.name}</CardTitle>
@@ -77,6 +87,15 @@ export default function Products({products}: productPropsType){
                     >
                         Add to Cart
                     </Button>
+                    <Button 
+className="flex-1 border border-green-600 text-green-700 bg-gray-100 hover:bg-green-700 hover:text-white -mt-15"
+onClick={(e) => {
+                          e.stopPropagation()
+                        }}
+                    >
+                        Buy now
+                    </Button>
+                    
                    
                     </CardFooter>
                 </Card>

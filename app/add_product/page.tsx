@@ -5,7 +5,7 @@ import { Field, Form, Formik } from "formik"
 import { useRouter } from "next/navigation";
 
 import { toast } from "react-toastify"
-import Header from "../header_test/page";
+import Header from "@/components/header";
 import { LoaderCircle } from "lucide-react";
 
 export default function AddProduct (){

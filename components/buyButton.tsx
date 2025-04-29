@@ -112,7 +112,7 @@ const BuyNowButton = ({ product, user }: any) => {
   return (
     <div>
       <button
-        className="border border-green-700 text-green-700 px-6 py-2 rounded hover:bg-green-100"
+        className="border bg-green-600 text-white px-6 py-2 rounded hover:bg-green-800 cursor-pointer"
         onClick={() => {
           if (!address) {
             // If no address, show the form to add an address
