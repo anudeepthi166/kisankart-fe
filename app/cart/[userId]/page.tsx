@@ -1,6 +1,6 @@
 "use client"
 
-import Header from "@/app/header_test/page"
+import Header from "@/components/header"
 import BuyNowButton from "@/components/buyButton"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"

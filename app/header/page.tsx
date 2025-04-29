@@ -2,14 +2,12 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import AddProduct from '../app/add_product/page';
+import AddProduct from '../add_product/page';
 import { toast, ToastContainer } from 'react-toastify';
 import { CircleUser, MapPin, LogOut, Search, ShoppingCart, Package, Heart, Plus, UserRoundPen, ChevronDown } from 'lucide-react';
 import Loading from '@/components/loading';
 import axios from 'axios';
-import Cart from '../app/cart/[userId]/page';
-import KisanKartLogo from '../public/KisanKart.png'
-import Image from 'next/image';
+import Cart from '../cart/[userId]/page';
 
 export default function Header() {
   const router = useRouter();
@@ -23,7 +21,6 @@ export default function Header() {
   const [selectedCategory, setSelectedCategory] = useState('')
   const [serachText, setSearchText] = useState('')
   const [openCategory, setOpenCategory] = useState(false)
-  const [address, setAddress]=useState<any>({})
   const categories = [
     { label: "All", value: "" },
     { label: "Pesticides", value: "Pesticides" },
@@ -37,27 +34,12 @@ export default function Header() {
   useEffect(()=>{
     getUserFromLocalStorage()
   },[])
-  useEffect(()=>{
-    getUserAddress()
-  }, [user])
   const getUserFromLocalStorage = ()=>{
     const user = localStorage.getItem('kisanKart_userId')
     const userRole = localStorage.getItem('kisanKart_userRole')
     setUser(user)
     setUserRole(userRole)
     setIsLoading(false)
-  }
-
-  const getUserAddress = async()=>{
-      try {
-        const response = await axios.get(`${API_URL}/user/address/${user}`);
-        if(response?.data?.address){
-          setAddress(response.data.address);
-        }
-        console.log("address->", response)
-      } catch (err) {
-        console.log(err);
-      }
   }
 
   const handleLogout = ()=>{
@@ -88,15 +70,13 @@ export default function Header() {
     <div className="w-full shadow-md bg-white sticky top-0 z-50">
       <div className="flex justify-between items-center pr-6 py-1">
         {/* Logo */}
-        <Image src={KisanKartLogo} className="ml-3 w-20 h-12 object-cover hover:cursor-pointer" alt="KisanKart"  onClick={()=>{router.push('/home')}}/>
+        <img src="KisanKart.png" className="ml-3 w-20 h-12 object-cover hover:cursor-pointer" alt="KisanKart"  onClick={()=>{router.push('/home')}}/>
         <div className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer">
           <div className="text-green-600">
             <MapPin className="w-6 h-6" />
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-xs text-gray-500">Delivering to    
-              <span className="text-sm text-gray-800 ml-1">{address.city} {address.postalCode }</span>
-            </span>
+            <span className="text-xs text-gray-500">Delivering to</span>
             <span className="text-sm font-semibold text-green-800">Update your address</span>
           </div>
         </div>
