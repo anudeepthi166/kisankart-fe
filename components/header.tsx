@@ -23,6 +23,7 @@ export default function Header() {
   const [selectedCategory, setSelectedCategory] = useState('')
   const [serachText, setSearchText] = useState('')
   const [openCategory, setOpenCategory] = useState(false)
+  const [address, setAddress]=useState<any>({})
   const categories = [
     { label: "All", value: "" },
     { label: "Pesticides", value: "Pesticides" },
@@ -36,12 +37,27 @@ export default function Header() {
   useEffect(()=>{
     getUserFromLocalStorage()
   },[])
+  useEffect(()=>{
+    getUserAddress()
+  }, [user])
   const getUserFromLocalStorage = ()=>{
     const user = localStorage.getItem('kisanKart_userId')
     const userRole = localStorage.getItem('kisanKart_userRole')
     setUser(user)
     setUserRole(userRole)
     setIsLoading(false)
+  }
+
+  const getUserAddress = async()=>{
+      try {
+        const response = await axios.get(`${API_URL}/user/address/${user}`);
+        if(response?.data?.address){
+          setAddress(response.data.address);
+        }
+        console.log("address->", response)
+      } catch (err) {
+        console.log(err);
+      }
   }
 
   const handleLogout = ()=>{
@@ -78,7 +94,9 @@ export default function Header() {
             <MapPin className="w-6 h-6" />
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-xs text-gray-500">Delivering to</span>
+            <span className="text-xs text-gray-500">Delivering to    
+              <span className="text-sm text-gray-800 ml-1">{address.city} {address.postalCode }</span>
+            </span>
             <span className="text-sm font-semibold text-green-800">Update your address</span>
           </div>
         </div>

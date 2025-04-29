@@ -8,7 +8,7 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "react-toastify"
 import BuyNowButton from "@/components/buyButton"
-import { Heart } from "lucide-react"
+import { Heart, MapPin } from "lucide-react"
 
 
 export default function ProductDetailPage() {
@@ -19,7 +19,24 @@ export default function ProductDetailPage() {
   const [products, setProducts] = useState<any[]>([])
   const [user, setUser] = useState<null | string>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isAddingToCart, setIsAddingToCart] = useState(false) // For button disable while adding to cart
+  const [isAddingToCart, setIsAddingToCart] = useState(false) 
+  const [address, setAddress]=useState<any>({})
+
+  useEffect(()=>{
+    getUserAddress()
+  }, [user])
+
+  const getUserAddress = async()=>{
+    try {
+      const response = await axios.get(`${API_URL}/user/address/${user}`);
+      if(response?.data?.address){
+        setAddress(response.data.address);
+      }
+      console.log("address->", response)
+    } catch (err) {
+      console.log(err);
+    }
+}
 
   const getProduct = async () => {
     try {
@@ -129,8 +146,8 @@ export default function ProductDetailPage() {
 
   return (
     <>
-        <Header/>
-       <div className="p-10 max-w-4xl mx-auto bg-white">
+      <Header/>
+      <div className="p-10 max-w-4xl mx-auto bg-white">
         <div className="flex gap-5">
           <div className="flex-1 relative">
             <img
@@ -172,6 +189,17 @@ export default function ProductDetailPage() {
               </button> */}
               <BuyNowButton product={product} user={user} />
 
+            </div>
+            <div className="mt-2 -ml-3 flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer">
+              <div className="text-green-600">
+                <MapPin className="w-6 h-6" />
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="text-xs text-gray-500">Delivering to    
+                  <span className="text-sm text-gray-800 ml-1">{address.city} {address.postalCode }</span>
+                </span>
+                <span className="text-sm font-semibold text-green-800">Update location</span>
+              </div>
             </div>
           </div>
         </div>
