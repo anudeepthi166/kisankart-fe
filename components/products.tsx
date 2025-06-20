@@ -77,7 +77,7 @@ export default function Products({products}: productPropsType){
                       <div className="text-sm text-gray-600  -mt-3">{product.category}</div>
                       </CardContent>
 
-                      <CardFooter className="flex justify-between gap-2 ">
+                      <CardFooter className="flex justify-center gap-2 ">
                       <Button 
                           className="flex-1 bg-green-600 text-white hover:bg-green-700 -mt-15"
                           onClick={(e) => {
@@ -88,10 +88,11 @@ export default function Products({products}: productPropsType){
                           Add to Cart
                       </Button>
                       <Button 
-  className="flex-1 border border-green-600 text-green-700 bg-gray-100 hover:bg-green-700 hover:text-white -mt-15"
-  onClick={(e) => {
-                            e.stopPropagation()
-                          }}
+                        className="flex-1 border border-green-600 text-green-700 bg-gray-100 hover:bg-green-700 hover:text-white -mt-15"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          router.push('/address')
+                        }}
                       >
                           Buy now
                       </Button>

@@ -18,7 +18,7 @@ export default function Category(){
 
     const getProductsByCategory = async() =>{
         try{
-          console.log(category)
+          console.log("-->",category)
           const res = await axios.get(`${API_URL}/product?category=${category}`)
           console.log("products by category-->",res)
           if(res.status === 200){
