@@ -21,7 +21,7 @@ export default function Header() {
   const [isLoading, setIsLoading] = useState(true)
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('')
-  const [serachText, setSearchText] = useState('')
+  const [searchText, setSearchText] = useState('')
   const [openCategory, setOpenCategory] = useState(false)
   const [address, setAddress]=useState<any>({
     name:"Anudeepthi",
@@ -93,11 +93,12 @@ export default function Header() {
     if(selectedCategory){
       url+= `category=${selectedCategory}&`
     }
-    url+= `productName=${serachText}`
+    url+= `productName=${searchText}`
     const res = await axios.get(url)
     const category = res.data?.products?.[0]?.category;
     //TODO: display only search results
-    router.push(`/category/${category}`)
+    console.log("************",res)
+    router.push(`/search_results/${searchText}`)
   }
 
   return (
@@ -156,7 +157,7 @@ export default function Header() {
               type="text" 
               placeholder="Start your search here..." 
               className="flex-1 px-4 py-2 focus:outline-none text-md border border-gray-100 rounded"
-              value={serachText}
+              value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
