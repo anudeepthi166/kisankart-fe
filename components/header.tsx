@@ -21,9 +21,13 @@ export default function Header() {
   const [isLoading, setIsLoading] = useState(true)
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('')
-  const [serachText, setSearchText] = useState('')
+  const [searchText, setSearchText] = useState('')
   const [openCategory, setOpenCategory] = useState(false)
-  const [address, setAddress]=useState<any>({})
+  const [address, setAddress]=useState<any>({
+    name:"Anudeepthi",
+    city:"Hyderabad",
+    pincode: 52234
+  })
   const categories = [
     { label: "All", value: "" },
     { label: "Pesticides", value: "Pesticides" },
@@ -68,7 +72,19 @@ export default function Header() {
 
 
   const handleCategoryChange = async(category:string)=>{
-    console.log('-->',category)
+    console.log('category-->',category, !category)
+    if(!category) {
+      const currentURL = window.location.href
+      console.log(currentURL)
+      if(currentURL === "http://localhost:3000/home") {
+        console.log("matched")
+        return
+      }
+      else {
+        router.push(`/home`)
+        return
+      }
+    }
     setSelectedCategory(category)
     router.push(`/category/${category}`)
   }
@@ -77,11 +93,12 @@ export default function Header() {
     if(selectedCategory){
       url+= `category=${selectedCategory}&`
     }
-    url+= `productName=${serachText}`
+    url+= `productName=${searchText}`
     const res = await axios.get(url)
     const category = res.data?.products?.[0]?.category;
     //TODO: display only search results
-    router.push(`/category/${category}`)
+    console.log("************",res)
+    router.push(`/search_results/${searchText}`)
   }
 
   return (
@@ -89,15 +106,14 @@ export default function Header() {
       <div className="flex justify-between items-center pr-6 py-1">
         {/* Logo */}
         <Image src={KisanKartLogo} className="ml-3 w-20 h-12 object-cover hover:cursor-pointer" alt="KisanKart"  onClick={()=>{router.push('/home')}}/>
-        <div className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer">
+        {/* Address */}
+        <div className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer" onClick={()=>router.push("/address")}>
           <div className="text-green-600">
             <MapPin className="w-6 h-6" />
           </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-xs text-gray-500">Delivering to    
-              <span className="text-sm text-gray-800 ml-1">{address.city} {address.postalCode }</span>
-            </span>
-            <span className="text-sm font-semibold text-green-800">Update your address</span>
+          <div className="flex flex-col">
+            <p className="text-xs text-gray-500">Deliver to  <span className='font-bold'>{address.name}</span>  </p>
+            <p className="text-sm text-gray-800">{address.city} {address.pincode }</p>
           </div>
         </div>
 
@@ -141,7 +157,7 @@ export default function Header() {
               type="text" 
               placeholder="Start your search here..." 
               className="flex-1 px-4 py-2 focus:outline-none text-md border border-gray-100 rounded"
-              value={serachText}
+              value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
