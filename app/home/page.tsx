@@ -5,7 +5,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Autoplay from "embla-carousel-autoplay"
-import Header from "../header_test/page"
+import Header from "@/components/header"
 import Link from "next/link"
 import axios from "axios"
 import Loading from "@/components/loading"

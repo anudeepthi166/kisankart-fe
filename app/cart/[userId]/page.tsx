@@ -1,6 +1,6 @@
 "use client"
 
-import Header from "@/app/header_test/page"
+import Header from "@/components/header"
 import BuyNowButton from "@/components/buyButton"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,6 +17,10 @@ export default function Cart(){
     const {userId} = useParams()
     const[user, setUser] = useState<null|string>()
     const [cartItems, setCartItems] = useState<any[]>([])
+    const subtotal = cartItems.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+    const shipping = subtotal > 1000 ? 0 : 50; // free shipping over 1000
+    const tax = Math.round(subtotal * 0.05);
+    const total = subtotal + shipping + tax;
 
     console.log('====', userId)
     useEffect(() => {
@@ -108,7 +112,7 @@ export default function Cart(){
       }
 
     return(
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 pb-20">
         <Header />
       
         {/* Clear Cart Button */}
@@ -144,9 +148,14 @@ export default function Cart(){
                   <h2 className="text-lg font-bold text-gray-800">{cartItem.product.name}</h2>
                   <div className="flex items-center gap-4">
                     {/* <span className="text-xl font-bold text-red-600">₹{100}</span> */}
-                    <span className="text-sm text-green-500 ">₹{cartItem.product.price}</span>
-                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-green-500">Price: ₹{cartItem.product.price}</span>
+                    <span className="text-sm text-gray-600 font-semibold mt-2">
+                      Total: <span className="font-bold">₹ {cartItem.product.price * cartItem.quantity}</span>
+                    </span>
+                  </div>                  
                 </div>
+              </div>
       
                 {/* Quantity Controls */}
                 <div className="flex items-center gap-2">
@@ -184,15 +193,14 @@ export default function Cart(){
                 <div className="flex flex-col md:flex-row gap-2 min-w-[150px]">
                 <BuyNowButton product={cartItem.product} user={user} />
 
-                  <Button
-                    variant="destructive"
-                    className="hover:bg-red-500 transition hover:cursor-pointer"
+                  <button
+                    className="border  text-red-500 px-6 py-2 rounded hover:bg-red-500 hover:text-white cursor-pointer"
                     onClick={() => {
                       deleteFromCart(cartItem.product.id);
                     }}
                   >
                     Delete
-                  </Button>
+                  </button>
                 </div>
               </div>
             ))
@@ -202,6 +210,48 @@ export default function Cart(){
             </p>
           )}
         </div>
+       
+       {/* Cost Summary Section */}
+{cartItems.length > 0 && (
+  <div className="max-w-5xl mx-auto px-6 mt-4 mb-36">
+    <div className="bg-white p-4 rounded-lg shadow-md w-full md:w-1/2 ml-auto">
+      <h4 className="text-md font-semibold text-gray-700 mb-2">Cost Summary</h4>
+
+      <div className="flex justify-between text-gray-600 mb-1">
+        <span>Subtotal</span>
+        <span>₹{subtotal}</span>
+      </div>
+
+      <div className="flex justify-between text-gray-600 mb-1">
+        <span>Shipping</span>
+        <span>{shipping === 0 ? "Free" : `₹${shipping}`}</span>
+      </div>
+
+      <div className="flex justify-between text-gray-600 mb-1">
+        <span>Tax (5%)</span>
+        <span>₹{tax}</span>
+      </div>
+
+      <div className="flex justify-between font-bold text-gray-800 border-t pt-2 mt-2 mb-4">
+        <span>Total</span>
+        <span>₹{total}</span>
+      </div>
+
+      {/* Proceed to Checkout Button */}
+      <button
+        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md transition"
+        onClick={() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          router.push(`/checkout?userId=${userId}`); // Update route as needed
+        }}
+      >
+        Proceed to Checkout
+      </button>
+    </div>
+  </div>
+)}
+
+
       </div>
       
     )

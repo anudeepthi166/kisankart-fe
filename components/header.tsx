@@ -2,22 +2,48 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import AddProduct from '../app/add_product/page';
 import { toast, ToastContainer } from 'react-toastify';
-import { CircleUser, LogOut } from 'lucide-react';
+import { CircleUser, MapPin, LogOut, Search, ShoppingCart, Package, Heart, Plus, UserRoundPen, ChevronDown } from 'lucide-react';
 import Loading from '@/components/loading';
+import axios from 'axios';
+import Cart from '../app/cart/[userId]/page';
+import KisanKartLogo from '../public/KisanKart.png'
+import Image from 'next/image';
 
 export default function Header() {
   const router = useRouter();
   const pathName = usePathname();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL
   const [showModal, setShowModal] = useState(false)
   const [user, setUser] = useState<null|string>(null)
   const [userRole, setUserRole] = useState<null|string>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [open, setOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [searchText, setSearchText] = useState('')
+  const [openCategory, setOpenCategory] = useState(false)
+  const [address, setAddress]=useState<any>({
+    name:"Anudeepthi",
+    city:"Hyderabad",
+    pincode: 52234
+  })
+  const categories = [
+    { label: "All", value: "" },
+    { label: "Pesticides", value: "Pesticides" },
+    { label: "Insecticides", value: "Insecticides" },
+    { label: "Seeds", value: "Seeds" },
+    { label: "Fertilizers", value: "Fertilizers" },
+    { label: "Farm tools", value: "FarmTools" }
+  ];
+
 
   useEffect(()=>{
     getUserFromLocalStorage()
   },[])
+  useEffect(()=>{
+    getUserAddress()
+  }, [user])
   const getUserFromLocalStorage = ()=>{
     const user = localStorage.getItem('kisanKart_userId')
     const userRole = localStorage.getItem('kisanKart_userRole')
@@ -26,65 +52,200 @@ export default function Header() {
     setIsLoading(false)
   }
 
+  const getUserAddress = async()=>{
+      try {
+        const response = await axios.get(`${API_URL}/user/address/${user}`);
+        if(response?.data?.address){
+          setAddress(response.data.address);
+        }
+        console.log("address->", response)
+      } catch (err) {
+        console.log(err);
+      }
+  }
+
   const handleLogout = ()=>{
     localStorage.removeItem('kisanKart_userId')
     toast.warn('Successfully logged out')
     router.push('/')
   }
 
-  const getButtonClass = (target: string) => (
-    pathName.startsWith(target)
-      ? 'text-white font-medium transition bg-green-700 p-2 rounded-md hover:cursor-pointer'
-      : 'text-green-700 font-medium hover:border-b-2 hover:border-green-700 transition hover:cursor-pointer'
-  );
+
+  const handleCategoryChange = async(category:string)=>{
+    console.log('category-->',category, !category)
+    if(!category) {
+      const currentURL = window.location.href
+      console.log(currentURL)
+      if(currentURL === "http://localhost:3000/home") {
+        console.log("matched")
+        return
+      }
+      else {
+        router.push(`/home`)
+        return
+      }
+    }
+    setSelectedCategory(category)
+    router.push(`/category/${category}`)
+  }
+  const handleSearch = async()=>{
+    let url = `${API_URL}/product/search?`
+    if(selectedCategory){
+      url+= `category=${selectedCategory}&`
+    }
+    url+= `productName=${searchText}`
+    const res = await axios.get(url)
+    const category = res.data?.products?.[0]?.category;
+    //TODO: display only search results
+    console.log("************",res)
+    router.push(`/search_results/${searchText}`)
+  }
 
   return (
     <div className="w-full shadow-md bg-white sticky top-0 z-50">
       <div className="flex justify-between items-center pr-6 py-1">
         {/* Logo */}
-        <img src="/KisanKart.png" className="w-20 h-12 object-contain hover:cursor-pointer" alt="KisanKart" onClick={() => {router.push('/home')}} />
+        <Image src={KisanKartLogo} className="ml-3 w-20 h-12 object-cover hover:cursor-pointer" alt="KisanKart"  onClick={()=>{router.push('/home')}}/>
+        {/* Address */}
+        <div className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer" onClick={()=>router.push("/address")}>
+          <div className="text-green-600">
+            <MapPin className="w-6 h-6" />
+          </div>
+          <div className="flex flex-col">
+            <p className="text-xs text-gray-500">Deliver to  <span className='font-bold'>{address.name}</span>  </p>
+            <p className="text-sm text-gray-800">{address.city} {address.pincode }</p>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <div className="flex bg-white shadow-md rounded-md border border-gray-100 w-[35rem]">
+            
+            {/* Dropdown */}
+            <div className="relative inline-block w-20">
+              <div
+                className="rounded px-3 py-3  text-sm cursor-pointer select-none bg-gray-100 hover:border-green-400 transition-all w-full"
+                onClick={(e) => {
+                  e.stopPropagation(); // prevent closing immediately
+                  setOpenCategory(!openCategory);
+                }}
+              >
+                <div className='flex'>
+                  {selectedCategory || "All"}
+                  <span className='ml-auto'><ChevronDown/></span>
+                </div>
+              </div>
+
+              {openCategory && (
+                <div className='absolute left-0 w-30 z-50 rounded-md shadow-lg bg-white border border-gray-200'> {categories.map((category) => (
+                    <div
+                      key={category.value}
+                      onClick={() => {
+                        handleCategoryChange(category.value);
+                        setOpenCategory(false); // close after selecting
+                      }}
+                      className="px-4 py-2 hover:bg-green-100 cursor-pointer text-sm transition-colors"
+                    >
+                      {category.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Search Input */}
+            <input 
+              type="text" 
+              placeholder="Start your search here..." 
+              className="flex-1 px-4 py-2 focus:outline-none text-md border border-gray-100 rounded"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                }
+              }}
+            />
+
+            {/* Search Button */}
+            <button className="p-2 bg-green-100 rounded" onClick={handleSearch}>
+              <Search className="w-6 h-6 text-green-700" />
+            </button>
+
+          </div>
+      </div>
 
 
         {/* Buttons */}
         <div className="flex items-center gap-6 ">
           <button
-            onClick={() => router.push('/home')}
-            className={getButtonClass('/home')}
+            onClick={() => {router.push(`/cart/${user}`)}}
+            className="text-green-700 font-semibold hover:bg-green-100 p-1 rounded cursor-pointer"          
           >
-            Home
+            <div className='flex '>
+              <ShoppingCart className='w-6 h-6 text-green-700'/>
+               <span>Cart</span>
+            </div>
           </button>
-          {userRole === 'Admin' &&
-            <button
-            onClick={() => {
-              router.push(`/add_product`)}}
-            className={getButtonClass('/addProduct')}
-          >
-            Add Product
-            </button>
-          }
           <button
             onClick={() => {router.push(`/cart/${user}`)}}
-            className={getButtonClass('/cart')}
+            className="text-green-700 font-semibold hover:bg-green-100 p-1 rounded cursor-pointer"          
           >
-            Cart
-          </button>
-          <button
-            onClick={() => router.push(`/order/${user}`)}
-            className={getButtonClass('/orders')}
-          >
-            Orders
+            <div className='flex'>
+              <Package className='w-6 h-6 text-green-700'/>
+               <span>Orders</span>
+            </div>
           </button>
 
           <div className="relative">
             <CircleUser
-              className="w-7 h-7 text-green-800 cursor-pointer hover:scale-105 transition"
+              className="w-7 h-7 text-green-800 cursor-pointer hover:scale-105 transition hover:bg-green-100  rounded hover:p-1 cursor-pointer"
               onClick={() => setOpen(!open)}
             />
             {open && (
-              <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-300 rounded-md shadow-md rounded-tr-none">
+              
+              <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-300 rounded-md shadow-md rounded-tr-none cursor-pointer">
+                 {userRole === 'Admin' &&
+                     <button
+                     onClick={() => {
+                      router.push(`/add_product`)}}
+                     className="flex items-center gap-2 w-full px-4 py-2 text-sm text-green-800 hover:bg-gray-100 rounded-md cursor-pointer"
+                   >
+                     <Plus /> Add product
+                   </button>
+                  }
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-green-800 hover:bg-gray-100 rounded-md "
+                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-green-800 hover:bg-gray-100 rounded-md cursor-pointer"
+                >
+                  <Heart /> Wish list
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-green-800 hover:bg-gray-100 rounded-md cursor-pointer"
+                >
+                  <ShoppingCart /> Cart
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-green-800 hover:bg-gray-100 rounded-md cursor-pointer"
+                >
+                  <Package /> Orders
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-green-800 hover:bg-gray-100 rounded-md cursor-pointer "
+                >
+                  <MapPin /> Address
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-green-800 hover:bg-gray-100 rounded-md cursor-pointer"
+                >
+                  <UserRoundPen /> Account
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-green-800 hover:bg-gray-100 rounded-md cursor-pointer"
                 >
                   <LogOut /> Logout
                 </button>
@@ -93,22 +254,6 @@ export default function Header() {
           </div>
         </div>
       </div>
-
-      {/* Modal
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-md p-8 w-[600px] max-h-[90vh] overflow-y-auto relative">
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-2 right-2 text-green-600 text-2xl hover:text-gray-900 transition"
-            >
-              ✖
-            </button>
-            <AddProduct />
-          </div>
-        </div>
-      )} */}
-
       <ToastContainer />
     </div>
 

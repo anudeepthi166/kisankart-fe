@@ -1,171 +1,265 @@
-import axios from 'axios';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
+"use client";
+import { Field, Form, Formik, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import axios from "axios";
 
-interface AddressFormValues {
-  fullName: string;
-  phoneNumber: string;
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-}
-
-export const AddressForm = ({onSubmit, initialValues: propInitialValues, onClose}: { onSubmit: (values: AddressFormValues) => void;initialValues?:Partial<AddressFormValues>;onClose:()=>void}) => {
-  const [user, setUser] = useState<null|string>()
-
-  useEffect(()=>{
-    const localUser = localStorage.getItem('kisanKart_userId')
-    setUser(localUser)
-  },[])
-  console.log('user', user)
-  const API_URL = process.env.NEXT_PUBLIC_API_URL
-  const defaultInitialValues: AddressFormValues = {
-    fullName: '',
-    phoneNumber: '',
-    addressLine1: '',
-    addressLine2: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    country: 'India',
+const initialValues = {
+    fullName: "",
+    mobile: "",
+    pincode: "",
+    address: "",
+    landmark: "",
+    city: "",
+    state: "",
+    addressType: "Home",
   };
-  const initialValues = { ...defaultInitialValues, ...propInitialValues };
-  const validate = (values: AddressFormValues) => {
-    const errors: Partial<AddressFormValues> = {};
 
-    if (!values.fullName) {
-      errors.fullName = 'Full Name is required';
-    }
-    if (!values.phoneNumber) {
-      errors.phoneNumber = 'Phone Number is required';
-    } else if (!/^\d{10}$/.test(values.phoneNumber)) {
-      errors.phoneNumber = 'Phone Number must be 10 digits';
-    }
-    if (!values.addressLine1) {
-      errors.addressLine1 = 'Address Line 1 is required';
-    }
-    if (!values.city) {
-      errors.city = 'City is required';
-    }
-    if (!values.state) {
-      errors.state = 'State is required';
-    }
-    if (!values.postalCode) {
-      errors.postalCode = 'Postal Code is required';
-    }
+type AddressFormProps = {
+  initialData?: typeof initialValues;
+  onSuccess?: () => void;
+};
 
-    return errors;
+const AddressForm = ({ initialData, onSuccess }: AddressFormProps) => {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter();
+
+  const initialValues = initialData || {
+    fullName: "",
+    mobile: "",
+    pincode: "",
+    address: "",
+    landmark: "",
+    city: "",
+    state: "",
+    addressType: "Home",
   };
-  const handleUpdateAddress = async(body: any)=>{
-    try{const res = await axios.put(`${API_URL}/user/address/${body.userId}`,body,
-      {headers:{
-        'Accept':'application/json'}
-      }
-      )
-      console.log('address update--->', res)
-      if(res.status === 200){
-        toast.success('Address updtaed')
-        onClose();
-      }
-    }catch(err:any){
-      console.log("ERROR-----------",err)
-    }
-  }
 
-  const handleSubmit = async(values: typeof initialValues)=>{
-    const body = {
-      "userId": user,
-      "fullName": values.fullName,
-      "phoneNumber": values.phoneNumber,
-      "addressLine1": values.addressLine1,
-      "addressLine2": values.addressLine2,
-      "city": values.city,
-      "state": values.state,
-      "postalCode": values.postalCode,
-      "country": values.country
-    }
-    try{const res = await axios.post(`${API_URL}/user/address`,body,
-      {headers:{
-        'Accept':'application/json'}
-      }
-      )
-      console.log('address add--->', res)
-      if(res.status === 201){
-        toast.success('Address added')
-        onClose();
-      }
-    }catch(err:any){
-      console.log("ERROR-----------",err)
-      if(err.status === 400 && err.response.data.message === "Address already exists for this user"){
-        handleUpdateAddress(body)
-      }
-      else{
-        toast.warning(err.message)
-      }
-    }
+  const isEdit = Boolean(initialData); // Check if we're updating
+const validationSchema = Yup.object({
+    fullName: Yup.string().required("Full name is required"),
+    mobile: Yup.string()
+      .matches(/^[6-9]\d{9}$/, "Invalid mobile number")
+      .required("Mobile is required"),
+    pincode: Yup.string()
+      .matches(/^\d{6}$/, "Pincode must be 6 digits")
+      .required("Pincode is required"),
+    address: Yup.string().required("Address is required"),
+    city: Yup.string().required("City is required"),
+    state: Yup.string().required("State is required"),
+  });
+  const handleSubmit = async (values: typeof initialValues) => {
+    console.log("address--->", values)
+    // try {
+    //   const endpoint = isEdit
+    //     ? `${API_URL}/user/address/${initialData?.id}`
+    //     : `${API_URL}/user/address`;
 
-  }
+    //   const method = isEdit ? axios.put : axios.post;
 
+    //   const res = await method(endpoint, values);
+
+    //   if (res.status === 200) {
+    //     toast.success(`Address ${isEdit ? "updated" : "added"} successfully`);
+    //     onSuccess?.(); // Callback after success (e.g., close modal)
+    //     if (!isEdit) router.push("/checkout");
+    //   }
+    // } catch (err: any) {
+    //   toast.error(err.response?.data?.message || "Failed to save address");
+    // }
+  };
+
+
+  const states = [
+    "Andhra Pradesh",
+    "Telangana",
+    "Karnataka",
+    "Maharashtra",
+    "Tamil Nadu",
+  ];
   return (
-    <div className="p-4">
+    <div className="max-w-xl mx-auto bg-white p-6 rounded shadow-md">
+      <div className="text-green-700 font-bold text-xl mb-6 text-center">
+        Add Delivery Address
+      </div>
       <Formik
         initialValues={initialValues}
-        validate={validate}
-        onSubmit={(values, { resetForm }) => {
-          handleSubmit(values);
-          resetForm();
-        }}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
       >
-        {() => (
-          <Form className="grid grid-cols-2 gap-4">
-            {/* First column */}
-            <div className="flex flex-col">
-              <label>Full Name</label>
-              <Field name="fullName" className="border p-2 rounded" />
-              <ErrorMessage name="fullName" component="div" className="text-red-500 text-sm" />
+        <Form>
+          {/* Full Name */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Full Name
+            </label>
+            <Field name="fullName">
+              {({ field, meta }: any) => (
+                <input
+                  {...field}
+                  placeholder="Enter full name"
+                  className={`w-full px-4 py-2 rounded-md shadow-sm transition
+                  ${
+                    meta.touched && meta.error
+                      ? "border border-red-500 placeholder-red-500 focus:ring-red-500 focus:border-red-500"
+                      : "border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md"
+                  }`}
+                />
+              )}
+            </Field>
+          </div>
 
-              <label>Phone Number</label>
-              <Field name="phoneNumber" className="border p-2 rounded" />
-              <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+          {/* Mobile */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mobile Number
+            </label>
+            <Field name="mobile">
+              {({ field, meta }: any) => (
+                <input
+                  {...field}
+                  placeholder="10-digit mobile number"
+                  className={`w-full px-4 py-2 rounded-md shadow-sm transition
+                  ${
+                    meta.touched && meta.error
+                      ? "border border-red-500 placeholder-red-500 focus:ring-red-500 focus:border-red-500"
+                      : "border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md"
+                  }`}
+                />
+              )}
+            </Field>
+          </div>
 
-              <label>Address Line 1</label>
-              <Field name="addressLine1" className="border p-2 rounded" />
-              <ErrorMessage name="addressLine1" component="div" className="text-red-500 text-sm" />
+          {/* Pincode */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Pincode
+            </label>
+            <Field name="pincode">
+              {({ field, meta }: any) => (
+                <input
+                  {...field}
+                  placeholder="6-digit pincode"
+                  className={`w-full px-4 py-2 rounded-md shadow-sm transition
+                  ${
+                    meta.touched && meta.error
+                      ? "border border-red-500 placeholder-red-500 focus:ring-red-500 focus:border-red-500"
+                      : "border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md"
+                  }`}
+                />
+              )}
+            </Field>
+          </div>
 
-              <label>Address Line 2</label>
-              <Field name="addressLine2" className="border p-2 rounded" />
+          {/* Address */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Address
+            </label>
+            <Field name="address">
+              {({ field, meta }: any) => (
+                <textarea
+                  {...field}
+                  rows={3}
+                  placeholder="Flat, House no., Building, Area"
+                  className={`w-full px-4 py-2 rounded-md shadow-sm transition
+                  ${
+                    meta.touched && meta.error
+                      ? "border border-red-500 placeholder-red-500 focus:ring-red-500 focus:border-red-500"
+                      : "border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md"
+                  }`}
+                />
+              )}
+            </Field>
+          </div>
+
+          {/* Landmark */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Landmark (optional)
+            </label>
+            <Field
+              name="landmark"
+              placeholder="Near park, mall, etc."
+              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none"
+            />
+          </div>
+
+          {/* City */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              City
+            </label>
+            <Field name="city">
+              {({ field, meta }: any) => (
+                <input
+                  {...field}
+                  placeholder="City"
+                  className={`w-full px-4 py-2 rounded-md shadow-sm transition
+                  ${
+                    meta.touched && meta.error
+                      ? "border border-red-500 placeholder-red-500 focus:ring-red-500 focus:border-red-500"
+                      : "border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md"
+                  }`}
+                />
+              )}
+            </Field>
+          </div>
+
+          {/* State */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              State
+            </label>
+            <Field
+              as="select"
+              name="state"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none"
+            >
+              <option value="">Select State</option>
+              {states.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </Field>
+            <ErrorMessage
+              name="state"
+              component="div"
+              className="text-red-500 text-sm"
+            />
+          </div>
+
+          {/* Address Type */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Address Type
+            </label>
+            <div className="flex space-x-4">
+              <label className="flex items-center space-x-2">
+                <Field type="radio" name="addressType" value="Home" />
+                <span>Home</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <Field type="radio" name="addressType" value="Work" />
+                <span>Work</span>
+              </label>
             </div>
+          </div>
 
-            {/* Second column */}
-            <div className="flex flex-col">
-              <label>City</label>
-              <Field name="city" className="border p-2 rounded" />
-              <ErrorMessage name="city" component="div" className="text-red-500 text-sm" />
-
-              <label>State</label>
-              <Field name="state" className="border p-2 rounded" />
-              <ErrorMessage name="state" component="div" className="text-red-500 text-sm" />
-
-              <label>Postal Code</label>
-              <Field name="postalCode" className="border p-2 rounded" />
-              <ErrorMessage name="postalCode" component="div" className="text-red-500 text-sm" />
-
-              <label>Country</label>
-              <Field name="country" className="border p-2 rounded" disabled />
-            </div>
-
-            <div className="col-span-2 mt-4">
-              <button type="submit" className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
-                Save Address
-              </button>
-            </div>
-          </Form>
-        )}
+          {/* Submit */}
+          <button
+            type="submit"
+            className="w-full mt-4 border-2 border-green-500 text-green-500 font-bold py-2 rounded hover:bg-green-500 hover:text-white transition shadow-md"
+          >
+            Save Address
+          </button>
+        </Form>
       </Formik>
     </div>
   );
 };
+
+export default AddressForm;
+

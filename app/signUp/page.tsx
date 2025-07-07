@@ -2,12 +2,14 @@
 
 import axios from "axios";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {toast} from 'react-toastify'
 
 export default function SignUp() {
     const API_URL = process.env.NEXT_PUBLIC_API_URL
+    const [loading, setLoading] = useState(false)
     const router = useRouter();
     const initialValues = {
         name: '',
@@ -32,6 +34,7 @@ export default function SignUp() {
 
     const handleSubmit = async(values: typeof initialValues) => {
         console.log("signUp details", values);
+        setLoading(true)
         try{
             const res = await axios.post(`${API_URL}/auth/signup`,
                 values)
@@ -45,8 +48,15 @@ export default function SignUp() {
             else{
                 toast.warning("Something went wrong")
             }
-        }catch(err){
+        }catch(err:any){
             console.log("error in signup", err)
+            if(err?.message==="Network Error"){
+                toast.error("Network Error")
+            }
+            else toast.error(err.response.data.message)
+        }
+        finally{
+            setLoading(false)
         }
 
     };
@@ -137,9 +147,9 @@ export default function SignUp() {
                     </div>
                     <button
                         type="submit"
-                        className="w-full mt-2 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition shadow-md cursor-pointer"
+                        className="flex justify-center gap-3 w-full mt-2 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition shadow-md cursor-pointer"
                     >
-                        Sign up
+                        {loading && <LoaderCircle className="animate-spin"/>}Sign up
                     </button>
                 </Form>
             </Formik>

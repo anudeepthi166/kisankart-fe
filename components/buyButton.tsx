@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './ui/modal'; // Assuming you have a modal component for the popup
-import { AddressForm } from './addressForm'; // The form you created for adding an address
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
@@ -112,7 +111,7 @@ const BuyNowButton = ({ product, user }: any) => {
   return (
     <div>
       <button
-        className="border border-green-700 text-green-700 px-6 py-2 rounded hover:bg-green-100"
+        className="border bg-green-600 text-white px-6 py-2 rounded hover:bg-green-800 cursor-pointer"
         onClick={() => {
           if (!address) {
             // If no address, show the form to add an address
@@ -126,81 +125,6 @@ const BuyNowButton = ({ product, user }: any) => {
         Buy Now
       </button>
 
-      {isModalOpen && (
-        <Modal
-          onClose={() => setIsModalOpen(false)}
-          title="Address Details"
-        >
-          {changeAddress ? (
-            <AddressForm
-              onSubmit={handleAddressSubmit}
-              initialValues={{
-                fullName: address?.fullName,
-                phoneNumber: address?.phoneNumber,
-                addressLine1: address?.addressLine1,
-                addressLine2: address?.addressLine2,
-                city: address?.city,
-                state: address?.state,
-                postalCode: address?.postalCode,
-                country: address?.country
-              }}
-              onClose={() => setChangeAddress(false)}
-            />
-          ) : (
-            !address?.fullName ? <AddressForm
-            onSubmit={handleAddressSubmit}
-            initialValues={{
-              fullName: address?.fullName,
-              phoneNumber: address?.phoneNumber,
-              addressLine1: address?.addressLine1,
-              addressLine2: address?.addressLine2,
-              city: address?.city,
-              state: address?.state,
-              postalCode: address?.postalCode,
-              country: address?.country
-            }}
-            onClose={() => setChangeAddress(false)}
-          />:(
-            <div>
-              <h3 className='text-yellow-600 font-bold'>Deliver to this address?</h3>
-              <p>{address?.fullName}</p>
-              <p>{address?.addressLine1}, {address?.addressLine2}</p>
-              <p>{address?.city}, {address?.state}, {address?.postalCode}</p>
-              <p>{address?.country}</p>
-
-              <div className="mt-4">
-                <div className="flex items-center gap-2">
-                  <label htmlFor="quantity" className="font-semibold">Quantity:</label>
-                  <input
-                    type="number"
-                    id="quantity"
-                    value={quantity}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setQuantity(value === '' ? 1 : Math.max(1, parseInt(value) || 1));
-                    }}
-                    min="1"
-                    className="border px-2 py-1 rounded"
-                  />
-                </div>
-
-                <button
-                  className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 mt-2"
-                  onClick={() => handleCreateOrder(address)}
-                >
-                  Deliver to this address
-                </button>
-                <button
-                  className="w-full bg-yellow-600 text-white py-2 mt-2 rounded hover:bg-yellow-700"
-                  onClick={() => setChangeAddress(true)}
-                >
-                  Change Address
-                </button>
-              </div>
-            </div>)
-          )}
-        </Modal>
-      )}
     </div>
   );
 };

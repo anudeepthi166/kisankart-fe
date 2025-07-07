@@ -1,4 +1,5 @@
 "use client"
+import Header from "@/components/header"
 import Products from "@/components/products"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
@@ -6,7 +7,6 @@ import axios from "axios"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "react-toastify"
-import Header from "@/components/header"
 
 export default function Category(){
     const router = useRouter()
@@ -18,7 +18,7 @@ export default function Category(){
 
     const getProductsByCategory = async() =>{
         try{
-          console.log(category)
+          console.log("-->",category)
           const res = await axios.get(`${API_URL}/product?category=${category}`)
           console.log("products by category-->",res)
           if(res.status === 200){
@@ -70,13 +70,13 @@ export default function Category(){
             <Header/>
             <h2 className="text-4xl font-bold text-green-700 mb-6 tracking-wide capitalize text-center mt-5">
                 {products.length > 0 && products[0].category}
-                </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
+            </h2>
+            <div className="ml-15 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 mt-6">
                 
                     {products && products.length !== 0 && products.map((product: any) => (
                         <Card 
                             key={product.id} 
-                            className="flex flex-col cursor-pointer shadow-md hover:shadow-xl transition-transform duration-300 transform hover:scale-110"
+                            className="flex flex-col cursor-pointer shadow-md hover:shadow-xl "
                             onClick={() => {
                                 router.push(`/product/${product.id}`)}}
                         >
@@ -95,15 +95,24 @@ export default function Category(){
                             <div className="text-sm text-gray-600  -mt-3">{product.category}</div>
                             </CardContent>
 
-                            <CardFooter className="flex justify-between gap-2 ">
+                            <CardFooter className="flex justify-center gap-2 ">
                             <Button 
-                                className="flex-1 bg-green-600 text-white hover:bg-green-700 -mt-15"
+                                className="flex-1 border border-2 bg-white border-green-600 text-green-600 hover:bg-green-600 hover:text-white -mt-15 cursor-pointer"
                                 onClick={(e) => {
                                 e.stopPropagation()
                                 addToCart(product);
                                 }}
                             >
                                 Add to Cart
+                            </Button>
+                            <Button 
+                                className="flex-1 bg-green-600 text-white hover:bg-green-700 -mt-15 cursor-pointer"
+                                onClick={(e) => {
+                                e.stopPropagation()
+                                addToCart(product);
+                                }}
+                            >
+                                Buy now
                             </Button>
                             </CardFooter>
                         </Card>
