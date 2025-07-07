@@ -2,14 +2,17 @@
 
 import axios from "axios";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Eye, EyeClosed, EyeOff, LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
 export default function Login() {
     const API_URL = process.env.NEXT_PUBLIC_API_URL
+    const [loading, setLoading] = useState(false)
     const router = useRouter();
     const [usePassword, setUsePasword] = useState(true);
+    const [showPassword, setShowPassword] = useState(false)
 
     const initialValues = {
         contact: '',
@@ -36,6 +39,7 @@ export default function Login() {
 
     const handleSubmit = async(values: typeof initialValues) => {
         console.log("Login details", values);
+        setLoading(true)
         try{
             const res = await axios.post(`${API_URL}/auth/login`,
                 values
@@ -52,7 +56,13 @@ export default function Login() {
             }
         }catch(err: any){
             console.log("error in login", err)
-            toast.error(err.response.data.message)
+            if(err?.message==="Network Error"){
+                toast.error("Network Error")
+            }
+            else toast.error(err.response.data.message)
+        }
+        finally{
+            setLoading(false)
         }
     };
 
@@ -87,9 +97,10 @@ export default function Login() {
                             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                             <Field name="password">
                                 {({ field, meta }: any) => (
-                                    <input
+                                <div className="relative flex items-center">
+                                        <input
                                         {...field}
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         placeholder={meta.touched && meta.error ? meta.error : "Enter your password"}
                                         className={`w-full px-4 py-2 rounded-md shadow-sm transition duration-200
                                             ${meta.touched && meta.error
@@ -97,7 +108,15 @@ export default function Login() {
                                                 : 'border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md'}
 
                                         `}
-                                    />
+                                    
+                                        />
+                                    <div
+                                        className="absolute right-3 cursor-pointer text-gray-500"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </div>                                    
+                                </div>
                                 )}
                             </Field>
                         </div>
@@ -135,9 +154,9 @@ export default function Login() {
                     {/* Submit */}
                     <button
                         type="submit"
-                        className="w-full mt-4 border border-2 border-green-500 font-bold text-green-500 py-2 rounded hover:bg-green-500 hover:text-white transition shadow-md cursor-pointer"
+                        className="flex justify-center gap-3 w-full mt-4 border border-2 border-green-500 font-bold text-green-500 py-2 rounded hover:bg-green-500 hover:text-white transition shadow-md cursor-pointer"
                     >
-                        Login
+                        {loading && <LoaderCircle className="animate-spin"/>}Login
                     </button>
                 </Form>
             </Formik>
