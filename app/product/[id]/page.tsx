@@ -32,7 +32,6 @@ export default function ProductDetailPage() {
       if(response?.data?.address){
         setAddress(response.data.address);
       }
-      console.log("address->", response)
     } catch (err) {
       console.log(err);
     }
@@ -41,7 +40,6 @@ export default function ProductDetailPage() {
   const getProduct = async () => {
     try {
       const res = await axios.get(`${API_URL}/product/${id}`)
-      console.log("product by id-->", res)
       if (res.status === 200) {
         setProduct(res.data.products) 
       }
@@ -54,7 +52,6 @@ export default function ProductDetailPage() {
   const getAllProducts = async () => {
     try {
       const res = await axios.get(`${API_URL}/product/?categoryFlag=true`)
-      console.log("all products-->", res)
       if (res.status === 200) {
         setProducts(res.data.products.test) // Assuming "products" is the correct key in the response
       }
@@ -92,7 +89,6 @@ export default function ProductDetailPage() {
           'Accept': 'application/json'
         }
       })
-      console.log('Added to cart:', res)
       if (res.status === 200) {
         toast.success("Product added to cart")
       } else {
@@ -130,7 +126,6 @@ export default function ProductDetailPage() {
           'Accept': 'application/json'
         }
       })
-      console.log('order -->:', res)
       if (res.status === 201) {
         toast.success("Order placed successfully")
       } else {

@@ -9,6 +9,7 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Swal from 'sweetalert2'
+import { Trash, Trash2 } from "lucide-react"
 
 
 export default function Cart(){
@@ -22,7 +23,6 @@ export default function Cart(){
     const tax = Math.round(subtotal * 0.05);
     const total = subtotal + shipping + tax;
 
-    console.log('====', userId)
     useEffect(() => {
         const userFromStorage = localStorage.getItem('kisanKart_userId')
         if (userFromStorage) {
@@ -36,7 +36,6 @@ export default function Cart(){
     const getCart = async() =>{
         try{
             const res = await axios.get(`${API_URL}/cart/user/${userId}`)
-            console.log(res)
             setCartItems(res.data.items)
         }
         catch(err:any){
@@ -47,8 +46,6 @@ export default function Cart(){
     const deleteFromCart = async( productId: Number) =>{
         try{
             const res = await axios.delete(`${API_URL}/cart/cartItem/user/${userId}/product/${productId}`)
-            console.log(res)
-            console.log('deleted')
             getCart()
         }
         catch(err:any){
@@ -58,8 +55,6 @@ export default function Cart(){
     const clearCart = async() =>{
         try{
             const res = await axios.delete(`${API_URL}/cart/clear/user/${userId}`)
-            console.log(res)
-            console.log('cleared')
             getCart()
         }
         catch(err:any){
@@ -68,7 +63,6 @@ export default function Cart(){
     }
     const updateQuantity = async(productId: Number, itemId: Number, quantity:Number) =>{
         try{
-            console.log(userId, productId, quantity)
             const res = await axios.put(`${API_URL}/cart/itemId/${itemId}`,{
                 'userId': userId,
                 'productId': productId,
@@ -78,8 +72,6 @@ export default function Cart(){
                     'Accept':'application/json'
                 }
             })
-            console.log(res)
-            console.log('updated quantuty')
             getCart()
         }
         catch(err:any){
@@ -194,12 +186,12 @@ export default function Cart(){
                 <BuyNowButton product={cartItem.product} user={user} />
 
                   <button
-                    className="border  text-red-500 px-6 py-2 rounded hover:bg-red-500 hover:text-white cursor-pointer"
+                    className="border  text-red-500 p-2 rounded hover:bg-red-500 hover:text-white cursor-pointer"
                     onClick={() => {
                       deleteFromCart(cartItem.product.id);
                     }}
                   >
-                    Delete
+                    <Trash2 size={20}/>
                   </button>
                 </div>
               </div>

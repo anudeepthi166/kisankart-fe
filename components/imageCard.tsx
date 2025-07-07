@@ -56,9 +56,7 @@ export default function ImageCard({images, heading, paragraph, link}: ImageCardP
         <button 
           className="flex ml-18 mt-4 py-2 px-6 border border-2 border-green-600 text-green-600 font-bold rounded-md hover:bg-green-600 hover:text-white transition-colors duration-300 hover:cursor-pointer"
           onClick={()=> {
-            console.log("link", link)
             const category = link
-            console.log(category)
             router.push(`/category/${category}`)}}
         >
           <span>See more</span>
