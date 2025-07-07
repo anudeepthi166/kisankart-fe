@@ -10,6 +10,8 @@ import axios from 'axios';
 import Cart from '../app/cart/[userId]/page';
 import KisanKartLogo from '../public/KisanKart.png'
 import Image from 'next/image';
+import { useDispatch } from 'react-redux';
+import { setProducts } from '@/store/productSlice';
 
 export default function Header() {
   const router = useRouter();
@@ -36,7 +38,7 @@ export default function Header() {
     { label: "Fertilizers", value: "Fertilizers" },
     { label: "Farm tools", value: "FarmTools" }
   ];
-
+  const dispatch = useDispatch()
 
   useEffect(()=>{
     getUserFromLocalStorage()
@@ -58,7 +60,6 @@ export default function Header() {
         if(response?.data?.address){
           setAddress(response.data.address);
         }
-        console.log("address->", response)
       } catch (err) {
         console.log(err);
       }
@@ -72,12 +73,9 @@ export default function Header() {
 
 
   const handleCategoryChange = async(category:string)=>{
-    console.log('category-->',category, !category)
     if(!category) {
       const currentURL = window.location.href
-      console.log(currentURL)
       if(currentURL === "http://localhost:3000/home") {
-        console.log("matched")
         return
       }
       else {
@@ -89,6 +87,10 @@ export default function Header() {
     router.push(`/category/${category}`)
   }
   const handleSearch = async()=>{
+    if(!searchText){
+      router.push('/home')
+      return
+    }
     let url = `${API_URL}/product/search?`
     if(selectedCategory){
       url+= `category=${selectedCategory}&`
@@ -97,7 +99,7 @@ export default function Header() {
     const res = await axios.get(url)
     const category = res.data?.products?.[0]?.category;
     //TODO: display only search results
-    console.log("************",res)
+    dispatch(setProducts(res.data.products))
     router.push(`/search_results/${searchText}`)
   }
 

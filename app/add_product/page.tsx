@@ -42,7 +42,6 @@ export default function AddProduct (){
         return errors;
     }
     const handleSubmit = async(values: typeof initialValues) =>{
-        console.log("add product details",values)
         const formData = new FormData()
         formData.append('name', values.name);
         formData.append('description', values.description);
@@ -59,7 +58,6 @@ export default function AddProduct (){
                     'Accept':'application/json'
                 }
             })
-            console.log(res)
             if(res.status==201){
                 toast.success("Product added succesfully")
                 router.push('/home')

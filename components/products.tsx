@@ -32,7 +32,6 @@ export default function Products({products}: productPropsType){
               'Accept': 'application/json'
             }
           })
-          console.log('Added to cart:',res)
           if(res.status === 200){
             toast.success("Product added to cart")
           }

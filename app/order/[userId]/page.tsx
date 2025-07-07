@@ -27,7 +27,6 @@ export default function Orders() {
   const fetchOrders = async () => {
     try {
       const res = await axios.get(`${API_URL}/order/user/${userId}`);
-      console.log(res.data);
       setOrders(res.data);
     } catch (err: any) {
       console.log("Error while fetching orders: ", err);

@@ -44,7 +44,6 @@ export default function HomePage() {
   const getAllProducts = async() =>{
     try{
       const res = await axios.get(`${API_URL}/product`)
-      console.log("all products-->",res)
       if(res.status === 200){
         setProducts(res.data.products)
       }
@@ -80,7 +79,6 @@ export default function HomePage() {
           'Accept': 'application/json'
         }
       })
-      console.log('Added to cart:',res)
       if(res.status===200){
         toast.success("Product added to cart")
       }

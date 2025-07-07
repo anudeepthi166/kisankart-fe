@@ -18,9 +18,7 @@ export default function Category(){
 
     const getProductsByCategory = async() =>{
         try{
-          console.log("-->",category)
           const res = await axios.get(`${API_URL}/product?category=${category}`)
-          console.log("products by category-->",res)
           if(res.status === 200){
             setProducts(res.data.products)
           }
@@ -49,7 +47,6 @@ export default function Category(){
               'Accept': 'application/json'
             }
           })
-          console.log('Added to cart:',res)
           if(res.status===200){
             toast.success("Product added to cart")
           }
