@@ -12,12 +12,14 @@ import KisanKartLogo from '../public/KisanKart.png'
 import Image from 'next/image';
 import { useDispatch } from 'react-redux';
 import { setProducts } from '@/store/productSlice';
+import Modal from './ui/modal';
+import Address from './ui/address';
 
 export default function Header() {
   const router = useRouter();
   const pathName = usePathname();
   const API_URL = process.env.NEXT_PUBLIC_API_URL
-  const [showModal, setShowModal] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [user, setUser] = useState<null|string>(null)
   const [userRole, setUserRole] = useState<null|string>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -25,11 +27,7 @@ export default function Header() {
   const [selectedCategory, setSelectedCategory] = useState('')
   const [searchText, setSearchText] = useState('')
   const [openCategory, setOpenCategory] = useState(false)
-  const [address, setAddress]=useState<any>({
-    name:"Anudeepthi",
-    city:"Hyderabad",
-    pincode: 52234
-  })
+  const [address, setAddress]=useState<any>()
   const categories = [
     { label: "All", value: "" },
     { label: "Pesticides", value: "Pesticides" },
@@ -44,7 +42,8 @@ export default function Header() {
     getUserFromLocalStorage()
   },[])
   useEffect(()=>{
-    getUserAddress()
+    if(user){
+      getUserAddress()}
   }, [user])
   const getUserFromLocalStorage = ()=>{
     const user = localStorage.getItem('kisanKart_userId')
@@ -57,8 +56,12 @@ export default function Header() {
   const getUserAddress = async()=>{
       try {
         const response = await axios.get(`${API_URL}/user/address/${user}`);
+        console.log(response)
         if(response?.data?.address){
-          setAddress(response.data.address);
+          let userAddresses = response.data.address
+          let selectedAdd = userAddresses.filter((add: any)=> add.isSelected == true)
+          console.log(selectedAdd[0])
+          setAddress(selectedAdd[0])
         }
       } catch (err) {
         console.log(err);
@@ -109,13 +112,16 @@ export default function Header() {
         {/* Logo */}
         <Image src={KisanKartLogo} className="ml-3 w-20 h-12 object-cover hover:cursor-pointer" alt="KisanKart"  onClick={()=>{router.push('/home')}}/>
         {/* Address */}
-        <div className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer" onClick={()=>router.push("/address")}>
+        <div className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer" onClick={()=>setIsModalOpen(true)}>
           <div className="text-green-600">
             <MapPin className="w-6 h-6" />
           </div>
           <div className="flex flex-col">
-            <p className="text-xs text-gray-500">Deliver to  <span className='font-bold'>{address.name}</span>  </p>
-            <p className="text-sm text-gray-800">{address.city} {address.pincode }</p>
+            {address ? <>
+            <p className="text-xs text-gray-500">Deliver to  <span className='font-bold'>{address.fullName}</span>  </p>
+            <p className="text-sm text-gray-800">{address.city} - {address.postalCode }</p>
+            </>: <div>Add your address</div>
+            }
           </div>
         </div>
 
@@ -256,6 +262,9 @@ export default function Header() {
           </div>
         </div>
       </div>
+      <Modal isOpen={isModalOpen} title='Address' onClose={()=>setIsModalOpen(false)}>
+        <Address/>
+      </Modal>
       <ToastContainer />
     </div>
 

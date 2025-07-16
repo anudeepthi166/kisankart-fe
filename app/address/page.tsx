@@ -1,143 +1,296 @@
 "use client";
-
+import { Field, Form, Formik, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import axios from "axios";
+import Address from "@/components/ui/address";
 import { useEffect, useState } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import { v4 as uuidv4 } from "uuid";
-import Header from "@/components/header";
-import { Pen } from "lucide-react";
-import AddressModal from "@/components/ui/addressModal";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
-interface Address {
-  id: string;
-  name: string;
-  street: string;
-  city: string;
-  state: string;
-  pincode: string;
-  country: string;
-}
 
-export default function AvailableAddresses() {
-  const [addresses, setAddresses] = useState<Address[]>([]);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
- const [isModalOpen, setModalOpen] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState(null); // for edit
 
-  const handleAdd = () => {
-    setSelectedAddress(null);
-    setModalOpen(true);
+const AddressForm = () => {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter();
+  const [userId, setUserId] = useState<Number|null>(null)
+  const selectedAddress = useSelector((state: RootState)=> state.address.address)
+
+  const initialValues = selectedAddress || {
+    fullName: "",
+    phoneNumber: "",
+    postalCode: "",
+    address: "",
+    landmark: "",
+    city: "",
+    state: "",
+    addressType: "Home",
+    userId: 0,
+
   };
 
-  const handleEdit = (address: any) => {
-    setSelectedAddress(address);
-    setModalOpen(true);
+  const validationSchema = Yup.object({
+    fullName: Yup.string().required("Full name is required"),
+    phoneNumber: Yup.string()
+      .matches(/^[6-9]\d{9}$/, "Invalid phone number")
+      .required("Mobile is required"),
+    postalCode: Yup.string()
+      .matches(/^\d{6}$/, "Pincode must be 6 digits")
+      .required("Pincode is required"),
+    address: Yup.string().required("Address is required"),
+    city: Yup.string().required("City is required"),
+    state: Yup.string().required("State is required"),
+  });
+
+  useEffect(()=>{
+    const localUserId = localStorage.getItem("kisanKart_userId")
+    setUserId(Number(localUserId))
+  },[])
+  const handleSubmit = async (values: typeof initialValues) => {
+    console.log("address--->", values)
+    if(userId){
+      values.userId = Number(userId)
+
+    }
+    try{
+      let res
+      console.log("selected", selectedAddress)
+        if(!selectedAddress){
+           res = await axios.post(`${API_URL}/user/address`,
+            values,
+            {
+                headers:{
+                    'Accept':'application/json'
+                }
+            })
+        }
+        else{
+          console.log("call for update")
+           res = await axios.put(`${API_URL}/user/address/${selectedAddress.id}`,
+            values,
+            {
+                headers:{
+                    'Accept':'application/json'
+                }
+            })
+        }
+        console.log(res)
+        if(res.status === 201){
+          toast.success("Succesfully added your address")
+          router.push(`/cart/${userId}`)
+        }
+    }
+    catch(err){
+      toast.success("Error while adding address")
+      console.log("Error while adding address",err)
+    }
   };
-  useEffect(() => {
-    const fetchSampleAddresses = () => {
-      const sampleData: Address[] = [
-        {
-          id: "1",
-          name:"Anudeepthi",
-          street: "123 Green Avenue",
-          city: "Hyderabad",
-          state: "Telangana",
-          pincode: "500081",
-          country: "India",
-        },
-        {
-          id: "2",
-            name:"Hima",
-
-          street: "45 Mango Street",
-          city: "Bangalore",
-          state: "Karnataka",
-          pincode: "560001",
-          country: "India",
-        },
-      ];
-      setAddresses(sampleData);
-    };
-
-    fetchSampleAddresses();
-  }, []);
-
-  const handleUpdate = (values: Address) => {
-    setAddresses((prev) =>
-      prev.map((addr) => (addr.id === values.id ? values : addr))
-    );
-    setEditingAddress(null);
-  };
 
 
-  const handleDeliver = (id: string) => {
-    setSelectedAddressId(id);
-    alert(`Delivering to Address ID: ${id}`);
-  };
-
+  const states = [
+    "Andhra Pradesh",
+    "Telangana",
+    "Karnataka",
+    "Maharashtra",
+    "Tamil Nadu",
+  ];
   return (
     <>
-        <Header/>
-        <div className="p-6 max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold text-green-700 mb-6 text-center">
-            {addresses.length ? "Your Addresses" : "Add your address"}
-        </h2>
-
-        <div className="grid gap-4 ">
-            {addresses.map((address) => (
-            <div
-                key={address.id}
-                className={`border flex justify-between items-center ${
-                selectedAddressId === address.id
-                    ? "border-green-600 bg-green-50"
-                    : "border-green-400"
-                } rounded-lg p-4 shadow hover:shadow-md hover:cursor-pointer transition`}
-            >
-                <div>
-                    <p className="font-bold ">{address.name}</p>
-                    <p className="font-semibold text-gray-800">
-                    {address.street}, {address.city}, {address.state}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                    {address.pincode}, {address.country}
-                    </p>
-                </div> 
-
-                <div className="flex flex-col gap-3">
-                    <button
-                        onClick={() => handleEdit(address)}
-                        className="flex items-center gap-2 px-3 py-1 rounded text-green-600 font-semibold border border-green-600 hover:bg-green-700 hover:text-white hover:cursor-pointer"
-                    >
-                        <Pen size={15}/><span>Update address</span>
-                    </button>
-                    <button
-                        onClick={() => handleDeliver(address.id)}
-                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 hover:cursor-pointer"
-                    >
-                        Deliver to this address
-                    </button>
-                </div>
+      <div className="max-w-xl mx-auto bg-white p-6 rounded shadow-md">
+        <div className="text-green-700 font-bold text-xl mb-6 text-center">
+          Add Delivery Address
+        </div>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          <Form>
+            {/* Full Name */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Full Name
+              </label>
+              <Field name="fullName">
+                {({ field, meta }: any) => (
+                  <input
+                    {...field}
+                    placeholder="Enter full name"
+                    className={`w-full px-4 py-2 rounded-md shadow-sm transition
+                    ${
+                      meta.touched && meta.error
+                        ? "border border-red-500 placeholder-red-500 focus:ring-red-500 focus:border-red-500"
+                        : "border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md"
+                    }`}
+                  />
+                )}
+              </Field>
             </div>
-            ))}
-        </div>
 
-        {/* ➕ Add New Address Button */}
-        <div className="text-center mt-6">
+            {/* Mobile */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Mobile Number
+              </label>
+              <Field name="phoneNumber">
+                {({ field, meta }: any) => (
+                  <input
+                    {...field}
+                    placeholder="10-digit phone number"
+                    className={`w-full px-4 py-2 rounded-md shadow-sm transition
+                    ${
+                      meta.touched && meta.error
+                        ? "border border-red-500 placeholder-red-500 focus:ring-red-500 focus:border-red-500"
+                        : "border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md"
+                    }`}
+                  />
+                )}
+              </Field>
+            </div>
+
+          
+
+            {/* Address */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Address
+              </label>
+              <Field name="address">
+                {({ field, meta }: any) => (
+                  <textarea
+                    {...field}
+                    rows={3}
+                    placeholder="Flat, House no., Building, Area"
+                    className={`w-full px-4 py-2 rounded-md shadow-sm transition
+                    ${
+                      meta.touched && meta.error
+                        ? "border border-red-500 placeholder-red-500 focus:ring-red-500 focus:border-red-500"
+                        : "border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md"
+                    }`}
+                  />
+                )}
+              </Field>
+            </div>
+            
+
+            {/* Landmark */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Landmark
+              </label>
+              <Field name="landmark">
+                {({ field, meta }: any) => (
+                  <input
+                    {...field}
+                    placeholder="Near park,mall etc"
+                    className={`w-full px-4 py-2 rounded-md shadow-sm transition
+                    ${
+                      meta.touched && meta.error
+                        ? "border border-red-500 placeholder-red-500 focus:ring-red-500 focus:border-red-500"
+                        : "border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md"
+                    }`}
+                  />
+                )}
+              </Field>
+            </div>
+
+            {/* City */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                City
+              </label>
+              <Field name="city">
+                {({ field, meta }: any) => (
+                  <input
+                    {...field}
+                    placeholder="City"
+                    className={`w-full px-4 py-2 rounded-md shadow-sm transition
+                    ${
+                      meta.touched && meta.error
+                        ? "border border-red-500 placeholder-red-500 focus:ring-red-500 focus:border-red-500"
+                        : "border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md"
+                    }`}
+                  />
+                )}
+              </Field>
+            </div>
+
+            {/* State */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                State
+              </label>
+              <Field
+                as="select"
+                name="state"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none"
+              >
+                <option value="">Select State</option>
+                {states.map((state) => (
+                  <option key={state} value={state}>
+                    {state}
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage
+                name="state"
+                component="div"
+                className="text-red-500 text-sm"
+              />
+            </div>
+
+              {/* Pincode */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Pincode
+              </label>
+              <Field name="postalCode">
+                {({ field, meta }: any) => (
+                  <input
+                    {...field}
+                    placeholder="6-digit postalCode"
+                    className={`w-full px-4 py-2 rounded-md shadow-sm transition
+                    ${
+                      meta.touched && meta.error
+                        ? "border border-red-500 placeholder-red-500 focus:ring-red-500 focus:border-red-500"
+                        : "border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-400 focus:outline-none focus:shadow-md"
+                    }`}
+                  />
+                )}
+              </Field>
+            </div>
+
+            {/* Address Type */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Address Type
+              </label>
+              <div className="flex space-x-4">
+                <label className="flex items-center space-x-2">
+                  <Field type="radio" name="addressType" value="Home" />
+                  <span>Home</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <Field type="radio" name="addressType" value="Work" />
+                  <span>Work</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Submit */}
             <button
-            onClick={() => handleAdd()}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              type="submit"
+              className="w-full mt-4 border-2 border-green-500 text-green-500 font-bold py-2 rounded hover:bg-green-500 hover:text-white transition shadow-md"
             >
-            + Add New Address
+              Save Address
             </button>
-        </div>
-
-        <AddressModal
-        isOpen={isModalOpen}
-        onClose={() => setModalOpen(false)}
-        initialData={selectedAddress}
-      />
-        </div>
+          </Form>
+        </Formik>
+      </div>
     </>
   );
-}
+};
+
+export default AddressForm;
+
