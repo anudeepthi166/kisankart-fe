@@ -38,14 +38,12 @@ export default function Login() {
     };
 
     const handleSubmit = async(values: typeof initialValues) => {
-        console.log("Login details", values);
         setLoading(true)
         try{
             const res = await axios.post(`${API_URL}/auth/login`,
                 values
             )
             if(res.status === 200){
-                console.log(res)
                 toast.success("Successfully logged in")
                 localStorage.setItem('kisanKart_userId', res.data.user.id)
                 localStorage.setItem('kisanKart_userRole', res.data.user.Role.name)

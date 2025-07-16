@@ -33,7 +33,6 @@ export default function SignUp() {
     };
 
     const handleSubmit = async(values: typeof initialValues) => {
-        console.log("signUp details", values);
         setLoading(true)
         try{
             const res = await axios.post(`${API_URL}/auth/signup`,
